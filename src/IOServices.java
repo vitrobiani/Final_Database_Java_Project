@@ -73,23 +73,22 @@ public class IOServices implements Services{
 
     public String getDestCountry(){
         System.out.println("please enter the destination country");
-        for (String country : db.importTax.keySet()) {
-            System.out.println(country);
-        }
-        System.out.println("would you like to add a new country? (y/n)");
-        char choice = getInput((Character c) -> c != 'y' && c != 'n', "");
-        if (choice == 'y') {
-            String country = addCountryToList();
-            return country;
-        }else {
+        System.out.println(db.getCountries().toString());
+
+//        System.out.println("would you like to add a new country? (y/n)");
+//        char choice = getInput((Character c) -> c != 'y' && c != 'n', "");
+//        if (choice == 'y') {
+//            String country = addCountryToList();
+//            return country;
+//        }else {
             String country = s.nextLine();
-            if (db.importTax.containsKey(country)) {
+            if (db.getCountries().get(country) != null){
                 return country;
             }else {
                 System.out.println("country not found");
                 return getDestCountry();
             }
-        }
+//        }
     }
     public String addCountryToList(){
         System.out.println("please enter the country name");
@@ -111,16 +110,24 @@ public class IOServices implements Services{
         return set;
     }
 
-    public boolean removeProduct(){
+    public Product getProduct(){
+        Command c = new printAllProductsCommand();
+        c.execute();
         System.out.println("please enter the product code");
         String code = s.nextLine();
         for (Product p: db.getProducts()){
             if (p.getCode().equals(code)){
-                db.getProducts().remove(p);
-                return true;
+                return p;
             }
         }
-        return false;
+        return null;
+    }
+
+    public boolean removeProduct(){
+        Product p = getProduct();
+        if (p == null) return false;
+        db.getProducts().remove(p);
+        return true;
     }
 
     public void updateProductInventory(){

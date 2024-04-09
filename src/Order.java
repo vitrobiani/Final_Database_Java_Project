@@ -1,10 +1,8 @@
 public class Order {
-    String makat;
     Customer customer;
     int quantity;
     Product product;
-    public Order(String makat, Customer customer, int quantity, Product product) {
-        this.makat = makat;
+    public Order(Customer customer, int quantity, Product product) {
         this.customer = customer;
         this.quantity = quantity;
         this.product = product;
@@ -17,4 +15,9 @@ public class Order {
     public Product getProduct() {
         return product;
     }
+
+    public String toString(){
+        return "Order for " + customer.getName() + " of " + quantity + " " + product.getName();
+    }
+
 }

@@ -1,18 +1,16 @@
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.TreeSet;
 
 public class DataBase {
-    private static DataBase[] _instance = new DataBase[1];
+    private static final DataBase[] _instance = new DataBase[1];
     public static TreeSet<Product> products;
     public static LinkedList<Invoice> invoices;
-    public static HashMap<String,Integer> importTax;
+    public static PairSet countries;
 
     private DataBase(){
         products = new TreeSet<>();
         invoices = new LinkedList<>();
-        importTax = new HashMap<>();
+        countries = new PairSet();
     }
     public static DataBase getInstance() {
         if (_instance[0] == null) {
@@ -25,8 +23,12 @@ public class DataBase {
         return products;
     }
 
+    public PairSet getCountries(){
+        return countries;
+    }
+
     public void addImportTax(String country, int tax){
-        importTax.put(country,tax);
+        countries.addPair(country, tax);
     }
 
     public void addProductToDB(Product p){
@@ -53,4 +55,5 @@ public class DataBase {
         }
         return true;
     }
+
 }

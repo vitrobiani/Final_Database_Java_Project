@@ -9,7 +9,7 @@ public class ProductSoldThroughWebsite extends Product {
     }
 
     public String toString(){
-        return "Where it sells: Website " + "Destination Country: " + destCountry + "Shipping Type: " +
+        return "Where it sells: Website " + "\nDestination Country: " + destCountry + " , Shipping Types Available: " +
                 type.toString() + "\n" + super.toString();
     }
 }

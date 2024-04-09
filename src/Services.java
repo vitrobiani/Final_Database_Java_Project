@@ -14,4 +14,6 @@ public interface Services {
     public void printProductTypes();
 
     public boolean removeProduct();
+
+    public Product getProduct();
 }

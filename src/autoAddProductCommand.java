@@ -1,12 +1,14 @@
 public class autoAddProductCommand extends MenuActionCompleteListener implements Command{
     public DataBase db = DataBase.getInstance();
-    private int amount = 3;
+    private static final int amount = 3;
     private int ind = 0;
     private final String[] codes = {"OOO", "OJK", "ITD", "TFK", "NFR", "ECP", "DEC", "NJK", "BDK"};
     private final String[] names = {"product1", "product2", "product3", "product4", "product5", "product6", "product7", "product8", "product9"};
     private final double[] sellPrices = {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0};
     private final double[] buyPrices = {5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0};
     private final int[] weights = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    private final String[] CustomerNames = {"John", "Doe", "Jane"};
+    private final String[] CustomerPhones = {"123456789", "987654321", "123123123"};
 
     @Override
     public boolean execute() {
@@ -22,6 +24,7 @@ public class autoAddProductCommand extends MenuActionCompleteListener implements
         return false;
     }
     private void addAmountProduct(ProductType type){
+        Creator<Product> c = new ProductCreator();
         for (int i = 0; i < amount; i++) {
             PairSet set = new PairSet();
             set.addPair("ProductType", type);
@@ -35,10 +38,22 @@ public class autoAddProductCommand extends MenuActionCompleteListener implements
                 set.addPair("ShippingType", ShippingType.EXPRESS);
                 set.addPair("destCountry", "USA");
             }
-            Creator c = new ProductCreator();
-            Product p = (Product) c.create(set);
+            Product p = c.create(set);
             db.addProductToDB(p);
+            p.updateStock(10);
         }
+    }
 
+    private void createOrder(){
+        for (int i = 0; i < amount; i++) {
+            Customer c = new Customer(CustomerNames[i], CustomerPhones[i]);
+            Product p;
+            if (i == 1)
+                p = db.getProducts().getFirst();
+            else
+                p = db.getProducts().getLast();
+
+            p.addOrder(new Order(c, 3, p));
+        }
     }
 }

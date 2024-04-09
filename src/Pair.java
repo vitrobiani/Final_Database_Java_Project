@@ -26,7 +26,7 @@ public class Pair {
 
     @Override
     public String toString() {
-        return "[" + key + "=" + value + "]";
+        return  key + " : " + value;
     }
 
     public boolean equals(Object obj) {
@@ -36,5 +36,4 @@ public class Pair {
         Pair pair = (Pair) obj;
         return key.equals(pair.key);
     }
-
 }

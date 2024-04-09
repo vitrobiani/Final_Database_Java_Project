@@ -15,6 +15,7 @@ public abstract class Product implements Comparable<Product> {
         this.buyPrice = buyPrice;
         this.sellPrice = sellPrice;
         this.weight = weight;
+        this.stock = 0;
         orders = new LinkedList<>();
     }
 
@@ -54,6 +55,10 @@ public abstract class Product implements Comparable<Product> {
         this.weight = weight;
     }
 
+    public int getStock() {
+        return stock;
+    }
+
     //add order to orders FIFO style
     public void addOrder(Order order){
         orders.addLast(order);
@@ -68,8 +73,19 @@ public abstract class Product implements Comparable<Product> {
     }
 
     public String toString(){
-        return "Product code: " + code + " Product name: " + name + ", Product buy price: " + buyPrice + ", Product sell price: " + sellPrice + ", Product weight: " + weight;
+        return "code: " + code + ", name: " + name + "\nbuy price: " + buyPrice + ",sell price: " + sellPrice + "\nweight: " + weight + ", stock: " + stock
+                + "\nCurrent Orders placed: " + orders.size();
     }
+
+    public String toStringAllOrders(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("Product Orders: \n");
+        for (Order o: orders){
+            sb.append(o.toString()).append("\n");
+        }
+        return sb.toString();
+    }
+
     public int compareTo(Product o) {
         return code.compareTo(o.getCode());
     }

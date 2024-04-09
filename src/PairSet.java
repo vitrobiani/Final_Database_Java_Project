@@ -7,6 +7,13 @@ public class PairSet {
         pairs = new HashSet<>();
     }
 
+    public String getKeys(){
+        StringBuilder sb = new StringBuilder();
+        for (Pair pair : pairs)
+            sb.append(pair.getKey()).append(",\n");
+        return sb.toString();
+    }
+
     public void addPair(String key, Object value){
         Pair p = new Pair(key,value);
         pairs.add(p);
@@ -21,5 +28,12 @@ public class PairSet {
             }
         }
         return null;
+    }
+
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        for (Pair pair : pairs)
+            sb.append(pair.toString()).append("\n");
+        return sb.toString();
     }
 }
