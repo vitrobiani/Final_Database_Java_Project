@@ -1,19 +1,25 @@
 import java.util.LinkedList;
-import java.util.Queue;
 
-public abstract class Product {
+public abstract class Product implements Comparable<Product> {
+    public String code;
     public String name;
     public double buyPrice;
     public double sellPrice;
     public int weight;
     public int stock;
-    public LinkedList<Order> orders = new LinkedList<>();
+    public LinkedList<Order> orders;
 
-    public Product(String name, double buyPrice, double sellPrice, int weight) {
+    public Product(String code, String name, double buyPrice, double sellPrice, int weight) {
+        this.code = code;
         this.name = name;
         this.buyPrice = buyPrice;
         this.sellPrice = sellPrice;
         this.weight = weight;
+        orders = new LinkedList<>();
+    }
+
+    public String getCode() {
+        return code;
     }
 
     public String getName() {
@@ -47,8 +53,25 @@ public abstract class Product {
     public void setWeight(int weight) {
         this.weight = weight;
     }
+
     //add order to orders FIFO style
     public void addOrder(Order order){
         orders.addLast(order);
     }
+
+    public double calculateProductProfit(){
+        return (sellPrice - buyPrice);
+    }
+
+    public void updateStock(int amount){
+        stock = amount;
+    }
+
+    public String toString(){
+        return "Product code: " + code + " Product name: " + name + ", Product buy price: " + buyPrice + ", Product sell price: " + sellPrice + ", Product weight: " + weight;
+    }
+    public int compareTo(Product o) {
+        return code.compareTo(o.getCode());
+    }
+
 }

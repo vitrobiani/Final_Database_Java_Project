@@ -1,27 +1,52 @@
-public class Main {
+import java.util.Scanner;
 
+public class Main {
+    public static Scanner s = new Scanner(System.in);
+    public static DataBase db = DataBase.getInstance();
+    public static IOServices srv = IOServices.getInstance();
     public static void main(String[] args) {
         lobby();
     }
 
     public static void lobby(){
-        int choise = 0;
-        System.out.println("please choose an option:" +
-                "\n1. add Products automatically"+
-                "\n2. Add a new product" +
-                "\n3. remove a product" +
-                "\n4. update product inventory" +
-                "\n5. add an order" +
-                "\n6. Undo last order" +
-                "\n7. print Product details"+
-                "\n8. print all products and store profit" +
-                "\n9. print all orders of a product and the profit"+
-                "\n10. backup the system to file"+
-                "\n11. restore the system from file");
-
+        int choice = 0;
         do {
+            System.out.println("Welcome to the store management system\n");
+            for (int i = 0; i < menuOptions.values().length; i++) {
+                System.out.println((i + 1) + ". " + menuOptions.values()[i] );
+            }
+            choice = srv.getInput((Integer i) -> (i > 11 || i < 1) && (i != -1), "");
+            MenuCommandsController controller = new MenuCommandsController(choice);
+            Command command = controller.getCommand();
+            if (command != null)
+                command.execute();
+        }while(choice != -1);
+    }
 
-        }while(choise != -1);
+    public static void addProductsAutomatically(){
+    }
 
+    public static void addNewProduct(){
+    }
+
+    public static void printAllProductsInStore(){
+        System.out.println("\nThe Products in the store: ");
+        int i = 1;
+        for (Product p : db.getProducts()){
+            System.out.println(i + ". " + p+"\n");
+            i++;
+        }
+    }
+
+    public static void removeProduct(){
+        if (srv.removeProduct()){
+            System.out.println("Product removed successfully");
+        }else {
+            System.out.println("Product not found");
+        }
+    }
+
+    public static void updateProductInventory(){
+        srv.updateProductInventory();
     }
 }
