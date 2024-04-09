@@ -11,6 +11,14 @@ public class DataBase {
         products = new TreeSet<>();
         invoices = new LinkedList<>();
         countries = new PairSet();
+        countries.addPair("USA", 20);
+        countries.addPair("Israel", 20);
+        countries.addPair("Omerland", 20);
+        countries.addPair("France", 20);
+        countries.addPair("Spain", 20);
+        countries.addPair("Thailand", 20);
+        countries.addPair("Canada", 20);
+        countries.addPair("Mexico", 20);
     }
     public static DataBase getInstance() {
         if (_instance[0] == null) {
