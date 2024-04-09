@@ -35,25 +35,20 @@ public class autoAddProductCommand extends MenuActionCompleteListener implements
             set.addPair("weight", weights[ind++]);
 
             if (type == ProductType.SOLD_THROUGH_WEBSITE){
-                set.addPair("ShippingType", ShippingType.EXPRESS);
-                set.addPair("destCountry", "USA");
+                set.addPair("ShippingType", ShippingType.values()[i]);
+                set.addPair("destCountry", db.getCountries().getRandomKey());
             }
             Product p = c.create(set);
             db.addProductToDB(p);
-            p.updateStock(10);
+            p.updateStock(20);
+            createOrder(p);
         }
     }
 
-    private void createOrder(){
+    private void createOrder(Product p){
         for (int i = 0; i < amount; i++) {
             Customer c = new Customer(CustomerNames[i], CustomerPhones[i]);
-            Product p;
-            if (i == 1)
-                p = db.getProducts().getFirst();
-            else
-                p = db.getProducts().getLast();
-
-            p.addOrder(new Order(c, 3, p));
+            new Order(c, 3, p);
         }
     }
 }

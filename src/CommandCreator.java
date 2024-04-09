@@ -21,7 +21,7 @@ public class CommandCreator implements Creator<Command>{
                 return new addOrderCommand();
             }
             case UNDO_LAST_ORDER: {
-//                return new undoLastOrderCommand();
+                return new undoLastOrderCommand();
             }
             case PRINT_PRODUCT_DETAILS: {
                 return new printProductDetailsCommand();

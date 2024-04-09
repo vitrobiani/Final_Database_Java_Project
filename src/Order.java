@@ -1,3 +1,5 @@
+import java.util.Stack;
+
 public class Order {
     Customer customer;
     int quantity;
@@ -6,6 +8,9 @@ public class Order {
         this.customer = customer;
         this.quantity = quantity;
         this.product = product;
+        product.addOrder(this);
+        product.updateStock(product.getStock() - quantity);
+
     }
 
     public int getQuantity() {
@@ -16,8 +21,10 @@ public class Order {
         return product;
     }
 
+
     public String toString(){
         return "Order for " + customer.getName() + " of " + quantity + " " + product.getName();
     }
+
 
 }

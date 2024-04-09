@@ -1,7 +1,9 @@
 import java.util.LinkedList;
+import java.util.Stack;
 import java.util.TreeSet;
 
 public class DataBase {
+    private static Stack<Product.Memento> stack;
     private static final DataBase[] _instance = new DataBase[1];
     public static TreeSet<Product> products;
     public static LinkedList<Invoice> invoices;
@@ -10,6 +12,7 @@ public class DataBase {
     private DataBase(){
         products = new TreeSet<>();
         invoices = new LinkedList<>();
+        stack = new Stack<>();
         countries = new PairSet();
         countries.addPair("USA", 20);
         countries.addPair("Israel", 20);
@@ -33,6 +36,10 @@ public class DataBase {
 
     public PairSet getCountries(){
         return countries;
+    }
+
+    public Stack<Product.Memento> getStack(){
+        return stack;
     }
 
     public void addImportTax(String country, int tax){
@@ -64,4 +71,10 @@ public class DataBase {
         return true;
     }
 
+    public Product findProduct(String code){
+        for (Product p: products){
+            if (p.getCode().equals(code)) return p;
+        }
+        return null;
+    }
 }

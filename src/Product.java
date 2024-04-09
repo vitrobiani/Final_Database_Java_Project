@@ -1,4 +1,5 @@
 import java.util.LinkedList;
+import java.util.Stack;
 
 public abstract class Product implements Comparable<Product> {
     public String code;
@@ -61,6 +62,7 @@ public abstract class Product implements Comparable<Product> {
 
     //add order to orders FIFO style
     public void addOrder(Order order){
+        DataBase.getInstance().getStack().push(createMemento(order));
         orders.addLast(order);
     }
 
@@ -70,6 +72,24 @@ public abstract class Product implements Comparable<Product> {
 
     public void updateStock(int amount){
         stock = amount;
+    }
+
+    public static class Memento{
+        protected final Product product;
+        protected final Order order;
+        private Memento(Product product, Order order){
+            this.product = product;
+            this.order = order;
+        }
+    }
+
+    public Memento createMemento(Order order){
+        return new Memento(this, order);
+    }
+
+    public void setMemento(Memento m){
+        orders.removeLast();
+        stock = m.product.stock;
     }
 
     public String toString(){
