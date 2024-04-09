@@ -12,7 +12,8 @@ public class DHL extends ShippingCompany{
     @Override
     public double calculateRegularShippingCost(Order order) {
         double productPrice = order.getProduct().getSellPrice();
-        double deliveryPrice = productPrice * 0.1;
+        double productPriceInDollars = productPrice / ProductSoldThroughWebsite.dollarRate;
+        double deliveryPrice = productPriceInDollars * 0.1;
         if(deliveryPrice < baseDeliveryPrice){
             return deliveryPrice;
         }
