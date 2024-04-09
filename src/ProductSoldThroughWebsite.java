@@ -12,4 +12,7 @@ public class ProductSoldThroughWebsite extends Product {
         return "Where it sells: Website " + "\nDestination Country: " + destCountry + " , Shipping Types Available: " +
                 type.toString() + "\n" + super.toString();
     }
+    public String getDestCountry() {
+        return destCountry;
+    }
 }
