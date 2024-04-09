@@ -35,7 +35,9 @@ public class autoAddProductCommand extends MenuActionCompleteListener implements
                 set.addPair("ShippingType", ShippingType.EXPRESS);
                 set.addPair("destCountry", "USA");
             }
-            db.addProductToDB(set);
+            Creator c = new ProductCreator();
+            Product p = (Product) c.create(set);
+            db.addProductToDB(p);
         }
 
     }

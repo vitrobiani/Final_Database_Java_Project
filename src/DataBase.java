@@ -8,22 +8,17 @@ public class DataBase {
     public static TreeSet<Product> products;
     public static LinkedList<Invoice> invoices;
     public static HashMap<String,Integer> importTax;
-    public static Creator<Product> ProductCreator;
 
     private DataBase(){
         products = new TreeSet<>();
         invoices = new LinkedList<>();
         importTax = new HashMap<>();
-        ProductCreator = new ProductCreator();
     }
     public static DataBase getInstance() {
         if (_instance[0] == null) {
             _instance[0] = new DataBase();
         }
         return _instance[0];
-    }
-    public Creator<Product> getProductCreator(){
-        return ProductCreator;
     }
 
     public TreeSet<Product> getProducts(){
@@ -34,8 +29,8 @@ public class DataBase {
         importTax.put(country,tax);
     }
 
-    public void addProductToDB(PairSet set){
-        products.add(ProductCreator.create(set));
+    public void addProductToDB(Product p){
+        products.add(p);
     }
 
     public boolean checkProductCode(String code){

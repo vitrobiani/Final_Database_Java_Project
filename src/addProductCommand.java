@@ -26,11 +26,13 @@ public class addProductCommand extends MenuActionCompleteListener implements Com
             update("An error occurred in adding product");
             return false;
         }
-        db.addProductToDB(set);
+        Creator c = new ProductCreator();
+        Product p = (Product) c.create(set);
+        db.addProductToDB(p);
         update("Product added successfully!");
         return true;
     }
-    public ProductType getProductType(){
+    private ProductType getProductType(){
         System.out.println("what kind of Product would you like to add:\n");
         srv.printProductTypes();
         int type = srv.getInput((Integer i ) -> i < 0 || i > ProductType.values().length, "");

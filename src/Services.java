@@ -12,4 +12,6 @@ public interface Services {
     public String addCountryToList();
 
     public void printProductTypes();
+
+    public boolean removeProduct();
 }

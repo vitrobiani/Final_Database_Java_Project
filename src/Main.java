@@ -30,20 +30,9 @@ public class Main {
     }
 
     public static void printAllProductsInStore(){
-        System.out.println("\nThe Products in the store: ");
-        int i = 1;
-        for (Product p : db.getProducts()){
-            System.out.println(i + ". " + p+"\n");
-            i++;
-        }
     }
 
     public static void removeProduct(){
-        if (srv.removeProduct()){
-            System.out.println("Product removed successfully");
-        }else {
-            System.out.println("Product not found");
-        }
     }
 
     public static void updateProductInventory(){
