@@ -90,4 +90,27 @@ public class DataBase implements Serializable {
         _instance[0].setProducts(ndb.getProducts());
         _instance[0].setStack(ndb.getStack());
     }
+
+    public void printAllOrdersOfProduct(String code){
+       Product p = findProduct(code);
+         if (p == null){
+              System.out.println("Product not found");
+              return;
+         }
+         int i=1;
+         for(Order o: p.orders){
+             System.out.println(i+"."+o);
+             System.out.println("profit:"+p.calculateProductProfit()*o.getQuantity());
+             i++;
+         }
+
+    }
+    public void printAllProductsInStore(){
+        int i = 1;
+        for (Product p : products){
+            System.out.print(i + ".");
+            p.printProductShort();
+            i++;
+        }
+    }
 }
