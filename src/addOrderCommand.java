@@ -16,7 +16,7 @@ public class addOrderCommand extends MenuActionCompleteListener implements Comma
         int quantity = srv.getInput((Integer i) -> i < 0 || i > product.getStock(), "please enter the quantity");
         new Order(customer, quantity, product);
 
-        if (!product.getClass().equals(ProductSoldThroughWebsite.class)){
+        if (product.getClass().equals(ProductSoldInStore.class)){
             char inv = srv.getInput((Character c) -> c != 'y' && c != 'n', "Would you like to print the Invoice: <y/n>");
             if(inv == 'y'){
                 int len = ((ProductSoldInCountry) product).getInvoices().size();
