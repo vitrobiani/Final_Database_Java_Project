@@ -112,4 +112,7 @@ public abstract class Product implements Serializable, Comparable<Product> {
         return code.compareTo(o.getCode());
     }
 
+    public void printProductShort(){
+        System.out.println("Name: " + name +"\nCode: " + code + "\nOrders: "+ orders.size());
+    }
 }
