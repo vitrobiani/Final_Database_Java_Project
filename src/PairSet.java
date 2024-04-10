@@ -1,8 +1,9 @@
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-public class PairSet {
+public class PairSet implements Serializable {
     public Set<Pair> pairs;
     public PairSet(){
         pairs = new HashSet<>();

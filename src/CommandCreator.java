@@ -30,13 +30,13 @@ public class CommandCreator implements Creator<Command>{
                 return new printAllProductsCommand();
             }
             case PRINT_ALL_ORDERS: {
-//                return new printAllOrdersCommand();
+                return new printAllOrdersCommand();
             }
             case BACKUP_SYSTEM: {
-//                return new backupSystemCommand();
+                return new backupSystemCommand();
             }
             case RESTORE_SYSTEM: {
-//                return new restoreSystemCommand();
+                return new restoreSystemCommand();
             }
             default:{
                 System.out.println("No such command");

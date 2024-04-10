@@ -1,17 +1,17 @@
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Stack;
 import java.util.TreeSet;
 
-public class DataBase {
-    private static Stack<Product.Memento> stack;
-    private static final DataBase[] _instance = new DataBase[1];
-    public static TreeSet<Product> products;
-    public static LinkedList<Invoice> invoices;
-    public static PairSet countries;
+public class DataBase implements Serializable {
+    private Stack<Product.Memento> stack;
+    private static DataBase[] _instance = new DataBase[1];
+    public TreeSet<Product> products;
+    public PairSet countries;
 
     private DataBase(){
         products = new TreeSet<>();
-        invoices = new LinkedList<>();
         stack = new Stack<>();
         countries = new PairSet();
         countries.addPair("USA", 20);
@@ -34,12 +34,20 @@ public class DataBase {
         return products;
     }
 
+    public void setProducts(TreeSet<Product> p){
+        this.products = p;
+    }
+
     public PairSet getCountries(){
         return countries;
     }
 
     public Stack<Product.Memento> getStack(){
         return stack;
+    }
+
+    public void setStack(Stack<Product.Memento> s){
+        this.stack = s;
     }
 
     public void addImportTax(String country, int tax){
@@ -76,5 +84,10 @@ public class DataBase {
             if (p.getCode().equals(code)) return p;
         }
         return null;
+    }
+
+    public void loadDataBase(DataBase ndb){
+        _instance[0].setProducts(ndb.getProducts());
+        _instance[0].setStack(ndb.getStack());
     }
 }

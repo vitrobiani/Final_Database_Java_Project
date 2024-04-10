@@ -15,10 +15,15 @@ public class addOrderCommand extends MenuActionCompleteListener implements Comma
         Customer customer = initCustomer();
         int quantity = srv.getInput((Integer i) -> i < 0 || i > product.getStock(), "please enter the quantity");
         new Order(customer, quantity, product);
-        System.out.println();
-        char inv = srv.getInput((Character c) -> c != 'y' && c != 'n', "Would you like to print the Invoice: <y/n>");
-        //TODO: implement invoice printing
 
+        if (!product.getClass().equals(ProductSoldThroughWebsite.class)){
+            char inv = srv.getInput((Character c) -> c != 'y' && c != 'n', "Would you like to print the Invoice: <y/n>");
+            if(inv == 'y'){
+                int len = ((ProductSoldInCountry) product).getInvoices().size();
+                String s = ((ProductSoldInCountry) product).invoiceToStringForCustomer(len);
+                System.out.println(s);
+            }
+        }
 
         return true;
     }

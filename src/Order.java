@@ -1,6 +1,8 @@
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Stack;
 
-public class Order {
+public class Order implements Serializable {
     Customer customer;
     int quantity;
     Product product;

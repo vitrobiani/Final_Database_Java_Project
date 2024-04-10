@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Objects;
 import java.util.Scanner;
@@ -110,7 +111,7 @@ public class IOServices implements Services{
         return set;
     }
 
-    public Product getProduct(){
+    public Product getProduct() {
         Command c = new printAllProductsCommand();
         c.execute();
         System.out.println("please enter the product code");

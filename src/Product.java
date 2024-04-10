@@ -1,7 +1,9 @@
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Stack;
 
-public abstract class Product implements Comparable<Product> {
+public abstract class Product implements Serializable, Comparable<Product> {
     public String code;
     public String name;
     public double buyPrice;
@@ -74,7 +76,7 @@ public abstract class Product implements Comparable<Product> {
         stock = amount;
     }
 
-    public static class Memento{
+    public static class Memento implements Serializable{
         protected final Product product;
         protected final Order order;
         private Memento(Product product, Order order){

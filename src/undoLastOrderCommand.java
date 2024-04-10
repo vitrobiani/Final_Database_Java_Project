@@ -2,6 +2,10 @@ public class undoLastOrderCommand extends MenuActionCompleteListener implements 
     DataBase db = DataBase.getInstance();
     @Override
     public boolean execute() {
+        if (db.getStack().isEmpty()){
+            update("No Order To Undo!");
+            return false;
+        }
         Order order = db.getStack().peek().order;
         Product p = db.getStack().peek().product;
         System.out.println("Dear customer, your order for: " + order.getQuantity() + " " + p.getName() +
