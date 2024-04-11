@@ -9,7 +9,8 @@ public enum menuOptions {
     PRINT_ALL_PRODUCTS("print all products and store profit"),
     PRINT_ALL_ORDERS("print all orders of a product and the profit"),
     BACKUP_SYSTEM("backup the system to file"),
-    RESTORE_SYSTEM("restore the system from file");
+    RESTORE_SYSTEM("restore the system from file"),
+    EXIT_PROGRAM("Save and Exit");
 
     private String option;
     menuOptions(String option){

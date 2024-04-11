@@ -9,6 +9,8 @@ public class printProductDetailsCommand extends MenuActionCompleteListener imple
         }
         System.out.println(product.toString());
         System.out.println(product.toStringAllOrders());
+        System.out.println("Total Product Profit: " + product.calculateTotalProductProfit());
+
         if (!product.getClass().equals(ProductSoldThroughWebsite.class))
             showInvoices((ProductSoldInCountry) product);
         return true;
@@ -22,7 +24,7 @@ public class printProductDetailsCommand extends MenuActionCompleteListener imple
         char choice = 'n';
         do {
             printAllInvoicesReduced(p);
-            int inv = srv.getInput((Integer i) -> i < 0 || i > p.getInvoices().size(), "Please Choose an Invoice to Show: ");
+            int inv = srv.getInput((Integer i) -> i < 1 || i > p.getInvoices().size(), "Please Choose an Invoice to Show: ")-1;
             char CustOrAcc = srv.getInput((Character c) -> c != 'c' && c != 'a', "Show Invoice for Accountant or Customer: <a/c>");
             if (CustOrAcc == 'c')
                 System.out.println(p.invoiceToStringForCustomer(inv));
@@ -35,7 +37,7 @@ public class printProductDetailsCommand extends MenuActionCompleteListener imple
 
     private void printAllInvoicesReduced(ProductSoldInCountry p){
         for (int i = 0; i < p.getInvoices().size(); i++) {
-            System.out.println(i + ". " + p.getInvoices().get(i).invoiceReducedToString());
+            System.out.println((i+1) + ". " + p.getInvoices().get(i).invoiceReducedToString());
         }
     }
 }

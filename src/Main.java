@@ -5,6 +5,7 @@ public class Main {
     public static DataBase db = DataBase.getInstance();
     public static IOServices srv = IOServices.getInstance();
     public static void main(String[] args) {
+        starter();
         lobby();
     }
 
@@ -15,27 +16,17 @@ public class Main {
             for (int i = 0; i < menuOptions.values().length; i++) {
                 System.out.println((i + 1) + ". " + menuOptions.values()[i] );
             }
-            choice = srv.getInput((Integer i) -> (i > 11 || i < 1) && (i != -1), "");
+            choice = srv.getInput((Integer i) -> (i > menuOptions.values().length || i < 1) ,"Please Enter Your Choice:  ");
             MenuCommandsController controller = new MenuCommandsController(choice);
             Command command = controller.getCommand();
             if (command != null)
                 command.execute();
-        }while(choice != -1);
+        }while(choice != menuOptions.EXIT_PROGRAM.ordinal()+1);
+        System.out.println("Goodbye!");
     }
 
-    public static void addProductsAutomatically(){
-    }
-
-    public static void addNewProduct(){
-    }
-
-    public static void printAllProductsInStore(){
-    }
-
-    public static void removeProduct(){
-    }
-
-    public static void updateProductInventory(){
-        srv.updateProductInventory();
+    public static void starter(){
+        db.addCompanies();
+        db.addCountries();
     }
 }

@@ -33,9 +33,9 @@ public class IOServices implements Services{
                 System.out.println(mesg);
                 String input = s.next();
                 try {
-                    if (condition instanceof Predicate<?> && isInteger(input)) {
+                    if (condition != null && isInteger(input)) {
                         choice = (T) (Integer) Integer.parseInt(input);
-                    } else if (condition instanceof Predicate<?>) {
+                    } else if (condition != null) {
                         if (input.length() == 1) {
                             choice = (T) (Character) input.charAt(0);
                         }
@@ -60,17 +60,6 @@ public class IOServices implements Services{
         return choice;
     }
 
-    public ShippingType getShippingType(){
-        System.out.println("please choose a shipping type:" +
-                "\n1. Regular" +
-                "\n2. Express");
-        for (int i = 0; i < ShippingType.values().length; i++) {
-            System.out.println((i + 1) + ". " + ShippingType.values()[i]);
-        }
-
-        int choice = getInput((Integer i) -> i > 2 || i < 1, "please enter a number between 1 and 3");
-        return ShippingType.values()[choice - 1];
-    }
 
     public String getDestCountry(){
         System.out.println("please enter the destination country");
@@ -106,14 +95,8 @@ public class IOServices implements Services{
         }
     }
 
-    public PairSet getProductDetails(){
-        PairSet set = new PairSet();
-        return set;
-    }
-
     public Product getProduct() {
-        Command c = new printAllProductsCommand();
-        c.execute();
+        System.out.println(db.AllProductsInStoreToString());
         System.out.println("please enter the product code");
         String code = s.nextLine();
         for (Product p: db.getProducts()){
@@ -124,25 +107,4 @@ public class IOServices implements Services{
         return null;
     }
 
-    public boolean removeProduct(){
-        Product p = getProduct();
-        if (p == null) return false;
-        db.getProducts().remove(p);
-        return true;
-    }
-
-    public void updateProductInventory(){
-        System.out.println("please enter the product code");
-        String code = s.nextLine();
-        for (Product p: db.getProducts()){
-            if (p.getCode().equals(code)){
-                System.out.println("please enter the current amount: ");
-                int amount = getInput((Integer i) -> i < 0, "");
-                p.updateStock(amount);
-                System.out.println("inventory updated successfully");
-                return;
-            }
-        }
-        System.out.println("Product not found");
-    }
 }

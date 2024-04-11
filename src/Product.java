@@ -76,26 +76,36 @@ public abstract class Product implements Serializable, Comparable<Product> {
         stock = amount;
     }
 
+    public double calculateTotalProductProfit(){
+        double sum = 0;
+        for (Order order:orders){
+            sum += order.calculateOrderProfit();
+        }
+        return sum;
+    }
+
     public static class Memento implements Serializable{
         protected final Product product;
         protected final Order order;
-        private Memento(Product product, Order order){
+        protected final int stock;
+        private Memento(Product product, Order order, int stock){
             this.product = product;
             this.order = order;
+            this.stock = stock;
         }
     }
 
     public Memento createMemento(Order order){
-        return new Memento(this, order);
+        return new Memento(this, order, stock);
     }
 
     public void setMemento(Memento m){
         orders.removeLast();
-        stock = m.product.stock;
+        stock = m.stock;
     }
 
     public String toString(){
-        return "code: " + code + ", name: " + name + "\nbuy price: " + buyPrice + ",sell price: " + sellPrice + "\nweight: " + weight + ", stock: " + stock
+        return "code: " + code + ", name: " + name + "\nbuy price: " + buyPrice + " ,sell price: " + sellPrice + "\nweight: " + weight + ", stock: " + stock
                 + "\nCurrent Orders placed: " + orders.size();
     }
 
@@ -103,7 +113,7 @@ public abstract class Product implements Serializable, Comparable<Product> {
         StringBuilder sb = new StringBuilder();
         sb.append("Product Orders: \n");
         for (Order o: orders){
-            sb.append(o.toString()).append("\n");
+            sb.append(o.orderDetails()).append("\n");
         }
         return sb.toString();
     }
@@ -112,7 +122,7 @@ public abstract class Product implements Serializable, Comparable<Product> {
         return code.compareTo(o.getCode());
     }
 
-    public void printProductShort(){
-        System.out.println("Name: " + name +"\nCode: " + code + "\nOrders: "+ orders.size());
+    public String ProductShortToString(){
+        return "Name: " + name +"  Code: " + code + "  Stock: " + stock + "  Orders: " + orders.size() ;
     }
 }

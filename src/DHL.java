@@ -1,6 +1,7 @@
 public class DHL extends ShippingCompany{
     final static int baseDeliveryPrice = 100;
     DataBase db = DataBase.getInstance();
+
     @Override
     public double calculateExpressShippingCost(Order order) {
         ProductSoldThroughWebsite product = (ProductSoldThroughWebsite)order.getProduct();
@@ -14,6 +15,10 @@ public class DHL extends ShippingCompany{
         double productPrice = order.getProduct().getSellPrice();
         double productPriceInDollars = productPrice / ProductSoldThroughWebsite.dollarRate;
         double deliveryPrice = productPriceInDollars * 0.1;
+        if (order.getClass().equals(OrderThroughWebsite.class)){
+            deliveryPrice *= ProductSoldThroughWebsite.dollarRate;
+        }
+        deliveryPrice *= order.quantity;
         if(deliveryPrice < baseDeliveryPrice){
             return deliveryPrice;
         }

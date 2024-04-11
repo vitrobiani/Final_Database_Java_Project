@@ -17,7 +17,7 @@ public class addProductCommand extends MenuActionCompleteListener implements Com
             set.addPair("weight", getWeight());
 
             if (set.get("ProductType") == ProductType.SOLD_IN_STORE) {
-                ShippingType shippingType = srv.getShippingType();
+                ShippingType shippingType = getShippingType();
                 set.addPair("ShippingType", shippingType);
                 String destCountry = srv.getDestCountry();
                 set.addPair("destCountry", destCountry);
@@ -84,5 +84,14 @@ public class addProductCommand extends MenuActionCompleteListener implements Com
                 System.out.println("buy price must be positive!");
         }while(weight < 0);
         return weight;
+    }
+
+    public ShippingType getShippingType(){
+        for (int i = 0; i < ShippingType.values().length; i++) {
+            System.out.println((i + 1) + ". " + ShippingType.values()[i]);
+        }
+
+        int choice = srv.getInput((Integer i) -> i > 2 || i < 1, "please enter a number between 1 and 3");
+        return ShippingType.values()[choice - 1];
     }
 }

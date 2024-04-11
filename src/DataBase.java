@@ -1,5 +1,6 @@
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -9,11 +10,28 @@ public class DataBase implements Serializable {
     private static DataBase[] _instance = new DataBase[1];
     public TreeSet<Product> products;
     public PairSet countries;
+    public ArrayList<ShippingCompany> companies;
 
     private DataBase(){
         products = new TreeSet<>();
         stack = new Stack<>();
+        companies = new ArrayList<>();
+
         countries = new PairSet();
+    }
+    public static DataBase getInstance() {
+        if (_instance[0] == null) {
+            _instance[0] = new DataBase();
+        }
+        return _instance[0];
+    }
+
+    public void addCompanies(){
+        companies.add(new DHL());
+        companies.add(new FedEx());
+    }
+
+    public void addCountries(){
         countries.addPair("USA", 20);
         countries.addPair("Israel", 20);
         countries.addPair("Omerland", 20);
@@ -22,12 +40,6 @@ public class DataBase implements Serializable {
         countries.addPair("Thailand", 20);
         countries.addPair("Canada", 20);
         countries.addPair("Mexico", 20);
-    }
-    public static DataBase getInstance() {
-        if (_instance[0] == null) {
-            _instance[0] = new DataBase();
-        }
-        return _instance[0];
     }
 
     public TreeSet<Product> getProducts(){
@@ -91,12 +103,8 @@ public class DataBase implements Serializable {
         _instance[0].setStack(ndb.getStack());
     }
 
-    public void printAllOrdersOfProduct(String code){
+    public void AllOrdersOfProduct(String code){
        Product p = findProduct(code);
-         if (p == null){
-              System.out.println("Product not found");
-              return;
-         }
          int i=1;
          for(Order o: p.orders){
              System.out.println(i+"."+o);
@@ -105,12 +113,13 @@ public class DataBase implements Serializable {
          }
 
     }
-    public void printAllProductsInStore(){
+    public String AllProductsInStoreToString(){
+        StringBuilder sb = new StringBuilder();
         int i = 1;
         for (Product p : products){
-            System.out.print(i + ".");
-            p.printProductShort();
+            sb.append(i + ". " + p.ProductShortToString() + "\n");
             i++;
         }
+        return sb.toString();
     }
 }

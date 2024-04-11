@@ -32,7 +32,7 @@ public class CommandCreator implements Creator<Command>{
             case PRINT_ALL_ORDERS: {
                 return new printAllOrdersCommand();
             }
-            case BACKUP_SYSTEM: {
+            case BACKUP_SYSTEM, EXIT_PROGRAM: {
                 return new backupSystemCommand();
             }
             case RESTORE_SYSTEM: {

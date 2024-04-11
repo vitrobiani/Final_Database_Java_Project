@@ -1,11 +1,14 @@
 public class printAllOrdersCommand extends MenuActionCompleteListener implements Command{
+    public static Services srv = IOServices.getInstance();
    DataBase db = DataBase.getInstance();
     @Override
     public boolean execute() {
-        db.printAllProductsInStore();
-        System.out.println("Please enter the product code: ");
-        String code = Main.s.nextLine();
-        db.printAllOrdersOfProduct(code);
+        Product product = srv.getProduct();
+        if (product == null){
+            update("Product Not Found");
+            return false;
+        }
+        System.out.println(product.toStringAllOrders() + "\n");
         return true;
     }
 }

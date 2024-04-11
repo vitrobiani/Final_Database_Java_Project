@@ -9,6 +9,8 @@ public class autoAddProductCommand extends MenuActionCompleteListener implements
     private final int[] weights = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     private final String[] CustomerNames = {"John", "Doe", "Jane"};
     private final String[] CustomerPhones = {"123456789", "987654321", "123123123"};
+    private static final Creator<Order> creator = new OrderCreator();
+    private static final Creator<Product> c = new ProductCreator();
 
     @Override
     public boolean execute() {
@@ -24,7 +26,6 @@ public class autoAddProductCommand extends MenuActionCompleteListener implements
         return false;
     }
     private void addAmountProduct(ProductType type){
-        Creator<Product> c = new ProductCreator();
         for (int i = 0; i < amount; i++) {
             PairSet set = new PairSet();
             set.addPair("ProductType", type);
@@ -47,8 +48,15 @@ public class autoAddProductCommand extends MenuActionCompleteListener implements
 
     private void createOrder(Product p){
         for (int i = 0; i < amount; i++) {
+            PairSet set = new PairSet();
+            set.addPair("Product", p);
+            set.addPair("ProductClass", p.getClass().getSimpleName());
             Customer c = new Customer(CustomerNames[i], CustomerPhones[i]);
-            new Order(c, 3, p);
+            set.addPair("Customer", c);
+            set.addPair("Quantity", 3);
+            if (p.getClass().equals(ProductSoldThroughWebsite.class))
+                set.addPair("ShippingType", ShippingType.values()[0]);
+            creator.create(set);
         }
     }
 }
