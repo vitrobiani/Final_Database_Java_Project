@@ -1,9 +1,24 @@
 import java.util.HashMap;
 
-public abstract class ShippingCompany {
+public class ShippingCompany {
+    public String Name;
     public Contact contact;
-    public abstract double calculateExpressShippingCost(Order order);
-    public abstract double calculateRegularShippingCost(Order order);
+    public double regularShippingMult;
+    public double expressShippingMult;
+
+    public ShippingCompany(String Name, Contact contact, double regularShippingMult, double expressShippingMult){
+        this.Name = Name;
+        this.contact = contact;
+        this.regularShippingMult = regularShippingMult;
+        this.expressShippingMult = expressShippingMult;
+    }
+
+    public double calculateExpressShippingCost(Order order){
+        return regularShippingMult * order.quantity;
+    }
+    public double calculateRegularShippingCost(Order order){
+        return expressShippingMult * order.quantity;
+    }
 
     public String getContactName(){
         return contact.getName();

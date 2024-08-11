@@ -23,6 +23,12 @@ public class CommandCreator implements Creator<Command>{
             case UNDO_LAST_ORDER: {
                 return new undoLastOrderCommand();
             }
+            case ADD_SHIPPING_COMPANY: {
+                return new addShippingCompany();
+            }
+            case REMOVE_SHIPPING_COMPANY:{
+                return new removeShippingCompany();
+            }
             case PRINT_PRODUCT_DETAILS: {
                 return new printProductDetailsCommand();
             }

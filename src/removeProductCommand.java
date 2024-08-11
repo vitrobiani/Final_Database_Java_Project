@@ -13,6 +13,7 @@ public class removeProductCommand extends MenuActionCompleteListener implements 
         return true;
     }
 
+// TODO remove objects will cause problem
     public boolean removeProduct(){
         Product p = srv.getProduct();
         if (p == null) return false;

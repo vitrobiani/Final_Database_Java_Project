@@ -1,9 +1,9 @@
-import java.io.Serial;
 import java.io.Serializable;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Stack;
 import java.util.TreeSet;
+import org.postgresql.util.PSQLException;
 
 public class DataBase implements Serializable {
     private Stack<Product.Memento> stack;
@@ -13,10 +13,10 @@ public class DataBase implements Serializable {
     public ArrayList<ShippingCompany> companies;
 
     private DataBase(){
-        products = new TreeSet<>();
         stack = new Stack<>();
-        companies = new ArrayList<>();
 
+        products = new TreeSet<>();
+        companies = new ArrayList<>();
         countries = new PairSet();
     }
     public static DataBase getInstance() {
@@ -26,9 +26,8 @@ public class DataBase implements Serializable {
         return _instance[0];
     }
 
-    public void addCompanies(){
-        companies.add(new DHL());
-        companies.add(new FedEx());
+    public void addCompanies() throws SQLException, ClassNotFoundException {
+        initDB();
     }
 
     public void addCountries(){
@@ -113,6 +112,7 @@ public class DataBase implements Serializable {
          }
 
     }
+
     public String AllProductsInStoreToString(){
         StringBuilder sb = new StringBuilder();
         int i = 1;
@@ -121,5 +121,101 @@ public class DataBase implements Serializable {
             i++;
         }
         return sb.toString();
+    }
+
+    Boolean QueryDB(String query)  throws ClassNotFoundException, SQLException {
+        Connection conecto = null;
+        Class.forName("org.postgresql.Driver");
+
+        try {
+            String dbURL = "jdbc:postgresql://localhost:5432/DDOFinalProject";
+            conecto = DriverManager.getConnection(dbURL, "postgres", "123123");
+        } catch (Exception e) {
+            System.out.println("Error!: " + e.getMessage());
+            return false;
+        }
+
+        Statement stmt = null;
+
+        try {
+            assert conecto != null;
+            stmt = conecto.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+
+        } catch (PSQLException esql) {
+            System.out.println(esql.getMessage());
+            System.out.println(query);
+            return false;
+        }
+
+        conecto.close();
+        return true;
+    }
+
+    public void initDB() throws SQLException, ClassNotFoundException {
+        createTable("ShippingCompanies", shippingCompaniesTable());
+        addShippingCompany("\'UPS\'", new Contact("omer", "555666", 1),1.2, 1.5);
+    }
+
+    public void createTable(String tableName, ArrayList<Pair> cols){
+        StringBuilder query = new StringBuilder("CREATE TABLE IF NOT EXISTS "+tableName+"(\n");
+        int i = 0;
+        for (Pair pair : cols){
+            query.append("    "+pair.getKey()+" " + pair.getValue() + ((i == cols.size()-1) ? "\n" : ",\n"));
+            i++;
+        }
+        query.append(");");
+        String q = query.toString();
+        try {
+            QueryDB(q);
+        }catch (ClassNotFoundException | SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void addToTable(String tableName, ArrayList<Pair> data){
+        StringBuilder query = new StringBuilder("INSERT INTO "+tableName+" (");
+
+        for (int i = 0; i < data.size(); i++){
+            query.append(data.get(i).getKey()+ ((i == data.size()-1) ? "" : ", "));
+        }
+        query.append(")\nVALUES(");
+        for (int i = 0; i < data.size(); i++){
+            query.append(data.get(i).getValue()+ ((i == data.size()-1) ? "" : ", "));
+        }
+        query.append(");");
+        String q = query.toString();
+        try {
+            QueryDB(q);
+        }catch (ClassNotFoundException | SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public ArrayList<Pair> shippingCompaniesTable() {
+        ArrayList<Pair> shippingCompanies = new ArrayList<>();
+        shippingCompanies.add(new Pair("name","varchar(50)"));
+        shippingCompanies.add(new Pair("contact","integer"));
+        shippingCompanies.add(new Pair("regularShippingMult","float"));
+        shippingCompanies.add(new Pair("expressShippingMult","float"));
+        return shippingCompanies;
+    }
+
+    public ArrayList<Pair> ShippingCompaniesTable(String name, Contact contact, double regularShippingMult, double expressShippingMult){
+        ArrayList<Pair> shippingCompanies = new ArrayList<>();
+        shippingCompanies.add(new Pair("name",name));
+        shippingCompanies.add(new Pair("contact",""+contact.EmployeeNumber));
+        shippingCompanies.add(new Pair("regularShippingMult",""+regularShippingMult));
+        shippingCompanies.add(new Pair("expressShippingMult",""+expressShippingMult));
+        return shippingCompanies;
+    }
+
+    public void addShippingCompany(String name, Contact contact, double regularShippingMult, double expressShippingMult) {
+        ArrayList<Pair> shippingCompanies = new ArrayList<>();
+        shippingCompanies.add(new Pair("name",name));
+        shippingCompanies.add(new Pair("contact",contact.EmployeeNumber));
+        shippingCompanies.add(new Pair("regularShippingMult",regularShippingMult));
+        shippingCompanies.add(new Pair("expressShippingMult",expressShippingMult));
+        addToTable("ShippingCompanies", shippingCompanies);
     }
 }

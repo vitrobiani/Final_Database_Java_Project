@@ -1,5 +1,7 @@
 public class Contact extends Person{
-    public Contact(String name, String phoneNumber){
+    public int EmployeeNumber;
+    public Contact(String name, String phoneNumber, int EmployeeNumber){
         super(name, phoneNumber);
+        this.EmployeeNumber = EmployeeNumber;
     }
 }
