@@ -125,7 +125,7 @@ public class DataBase implements Serializable {
 
         try {
             String dbURL = "jdbc:postgresql://localhost:5432/DDOFinalProject";
-            conecto = DriverManager.getConnection(dbURL, "postgres", "123123");
+            conecto = DriverManager.getConnection(dbURL, "postgres", "1234");
         } catch (Exception e) {
             System.out.println("Error!: " + e.getMessage());
         }
@@ -150,7 +150,7 @@ public class DataBase implements Serializable {
 
         try {
             String dbURL = "jdbc:postgresql://localhost:5432/DDOFinalProject";
-            conecto = DriverManager.getConnection(dbURL, "postgres", "123123");
+            conecto = DriverManager.getConnection(dbURL, "postgres", "1234");
         } catch (Exception e) {
             System.out.println("Error!: " + e.getMessage());
         }
@@ -283,25 +283,26 @@ public class DataBase implements Serializable {
         products.add(new Pair("ProductType","varchar(10) NOT NULL"));
         products.add(new Pair("sourceCountry","varchar(50)"));
         products.add(new Pair("ShippingType","varchar(50)"));
-        products.add(new Pair("CHECK (ShippingType IN","('express', 'standard', 'both')"));
-        products.add(new Pair("CHECK (ProductType IN","('country', 'Store', 'Wholesalers')"));
+        products.add(new Pair("CHECK (ShippingType IN","('express', 'standard', 'both'))"));
+        products.add(new Pair("CHECK (ProductType IN","('Website', 'Store', 'Wholesalers'))"));
         return products;
     }
 
     public ArrayList<Pair> ordersTable(){
         ArrayList<Pair> orders = new ArrayList<>();
+        orders.add(new Pair("orderID","SERIAL"));
         orders.add(new Pair("customerID","integer NOT NULL"));
         orders.add(new Pair("quantity","integer NOT NULL"));
         orders.add(new Pair("ProductID","varchar(10)"));
-        orders.add(new Pair("FOREIGN KEY (ProductID)", "REFERENCES (Products(code))"));
+        orders.add(new Pair("FOREIGN KEY (ProductID)", "REFERENCES Products(code)"));
         return orders;
     }
 
     public ArrayList<Pair> invoiceTable(){
         ArrayList<Pair> invoices = new ArrayList<>();
         invoices.add(new Pair("ProductID","varchar(10)"));
-        invoices.add(new Pair("Date","datetime"));
-        invoices.add(new Pair("FOREIGN KEY (ProductID)", "REFERENCES (ProductsCountry(code))"));
+        invoices.add(new Pair("Date","timestamp"));
+        invoices.add(new Pair("FOREIGN KEY (ProductID)", "REFERENCES Products(code)"));
         return invoices;
     }
 }
