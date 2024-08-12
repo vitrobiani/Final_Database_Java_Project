@@ -4,7 +4,7 @@ public enum menuOptions {
     REMOVE_PRODUCT("remove a product"),
     UPDATE_PRODUCT("update product inventory"),
     ADD_ORDER("add an order"),
-    UNDO_LAST_ORDER("Undo last order"),
+    UNDO_LAST_ORDER("remove last order"),
     ADD_SHIPPING_COMPANY("add a shipping company"),
     REMOVE_SHIPPING_COMPANY("remove a shipping company"),
     PRINT_PRODUCT_DETAILS("print Product details"),

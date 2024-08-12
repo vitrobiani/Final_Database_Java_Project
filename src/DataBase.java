@@ -165,7 +165,6 @@ public class DataBase implements Serializable {
             System.out.println(esql.getMessage());
         }
 
-        System.out.println("Lines Changed: " + rs);
         conecto.close();
         return rs;
     }
@@ -180,7 +179,6 @@ public class DataBase implements Serializable {
         query.append(");");
         String q = query.toString();
         try {
-            System.out.println(q);
             UpdateDB(q);
         }catch (ClassNotFoundException | SQLException e){
             System.out.println(e.getMessage());
@@ -288,21 +286,62 @@ public class DataBase implements Serializable {
         return products;
     }
 
+    public boolean addProduct(String code, String name, double buyPrice, double sellPrice, int weight, int stock, String productType, String sourceCountry, String shippingType){
+        ArrayList<Pair> products = new ArrayList<>();
+        products.add(new Pair("code", code));
+        products.add(new Pair("name", name));
+        products.add(new Pair("buyPrice", buyPrice));
+        products.add(new Pair("sellPrice", sellPrice));
+        products.add(new Pair("weight", weight));
+        products.add(new Pair("stock", stock));
+        products.add(new Pair("ProductType", productType));
+        products.add(new Pair("sourceCountry", sourceCountry));
+        products.add(new Pair("ShippingType", shippingType));
+        return addToTable("Products", products);
+    }
+
+    public boolean removeProduct(String code){
+        return removeFromTable("Products", "code", code);
+    }
+
     public ArrayList<Pair> ordersTable(){
         ArrayList<Pair> orders = new ArrayList<>();
         orders.add(new Pair("orderID","SERIAL"));
         orders.add(new Pair("customerID","integer NOT NULL"));
+        orders.add(new Pair("FOREIGN KEY (customerID)", "REFERENCES customers(customerid)"));
         orders.add(new Pair("quantity","integer NOT NULL"));
         orders.add(new Pair("ProductID","varchar(10)"));
         orders.add(new Pair("FOREIGN KEY (ProductID)", "REFERENCES Products(code)"));
         return orders;
     }
 
+    public boolean addOrder(int customerID, int quantity, String productID){
+        ArrayList<Pair> orders = new ArrayList<>();
+        orders.add(new Pair("customerID", customerID));
+        orders.add(new Pair("quantity", quantity));
+        orders.add(new Pair("ProductID", productID));
+        return addToTable("Orders", orders);
+    }
+
+    public boolean removeOrder(int id){
+        return removeFromTable("Orders", "orderID", id);
+    }
     public ArrayList<Pair> invoiceTable(){
         ArrayList<Pair> invoices = new ArrayList<>();
-        invoices.add(new Pair("ProductID","varchar(10)"));
+        invoices.add(new Pair("OrderID","integer NOT NULL"));
         invoices.add(new Pair("Date","timestamp"));
-        invoices.add(new Pair("FOREIGN KEY (ProductID)", "REFERENCES Products(code)"));
+        invoices.add(new Pair("FOREIGN KEY (OrderID)", "REFERENCES Orders(orderid)"));
         return invoices;
+    }
+
+    public boolean addInvoice(String OrderID){
+        ArrayList<Pair> invoices = new ArrayList<>();
+        invoices.add(new Pair("OrderId", OrderID));
+        invoices.add(new Pair("Date", "CURRENT_TIMESTAMP"));
+        return addToTable("Invoices", invoices);
+    }
+
+    public boolean removeInvoice(int id){
+        return removeFromTable("Invoices", "OrderID", id);
     }
 }
