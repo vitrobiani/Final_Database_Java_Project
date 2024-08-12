@@ -3,8 +3,8 @@ import java.util.ArrayList;
 public abstract class ProductSoldInCountry extends Product {
     ArrayList<Invoice> invoices;
 
-    public ProductSoldInCountry(String code, String name, double buyPrice, double sellPrice, int weight) {
-        super(code, name, buyPrice, sellPrice, weight);
+    public ProductSoldInCountry(String code, String name, double buyPrice, double sellPrice, int weight, int stock) {
+        super(code, name, buyPrice, sellPrice, weight, stock);
         invoices = new ArrayList<>();
     }
 

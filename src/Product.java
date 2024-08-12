@@ -23,6 +23,17 @@ public abstract class Product implements Serializable, Comparable<Product> {
         orders = new LinkedList<>();
     }
 
+    public Product(String code, String name, double buyPrice, double sellPrice, int weight, int stock) {
+        this.code = code;
+        this.name = name;
+        this.buyPrice = buyPrice;
+        this.sellPrice = sellPrice;
+        this.weight = weight;
+        this.stock = stock;
+        orders = new LinkedList<>();
+    }
+
+
     public String getCode() {
         return code;
     }

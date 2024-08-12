@@ -1,6 +1,6 @@
 public class ProductSoldInStore extends ProductSoldInCountry {
-    public ProductSoldInStore(String code, String name, double buyPrice, double sellPrice, int weight) {
-        super(code, name, buyPrice, sellPrice, weight);
+    public ProductSoldInStore(String code, String name, double buyPrice, double sellPrice, int weight, int stock) {
+        super(code, name, buyPrice, sellPrice, weight, stock);
     }
 
     public String toString(){

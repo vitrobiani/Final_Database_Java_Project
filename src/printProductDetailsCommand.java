@@ -1,18 +1,40 @@
+import java.sql.SQLException;
+
 public class printProductDetailsCommand extends MenuActionCompleteListener implements Command {
     Services srv = IOServices.getInstance();
+    DataBase db = DataBase.getInstance();
     @Override
     public boolean execute() {
-        Product product = srv.getProduct();
-        if (product == null){
+        String code = srv.getProductCode();
+        if(code == null){
             update("Product not found");
             return false;
         }
-        System.out.println(product.toString());
-        System.out.println(product.toStringAllOrders());
-        System.out.println("Total Product Profit: " + product.calculateTotalProductProfit());
-
-        if (!product.getClass().equals(ProductSoldThroughWebsite.class))
-            showInvoices((ProductSoldInCountry) product);
+        System.out.println();
+        Product p = db.getProduct(code);
+        if (p == null){
+            update("Product not found");
+            return false;
+        }
+        System.out.println("Product Details:\n"+"code: "+p.getCode()+" "+"name: "+p.getName()+"\n"+"buyPrice: "+p.getBuyPrice()+" "+"sellPrice: "+p.getSellPrice()+"\n"+"weight: "+p.getWeight()+" "+"stock: "+p.getStock()+"\n Product Type:"+p.getClass().getSimpleName());
+//        try {
+//            db.QueryDB("SELECT * FROM products WHERE code = '" + code + "';");
+//        } catch (ClassNotFoundException e) {
+//            throw new RuntimeException(e);
+//        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+//        }
+//        Product product = srv.getProduct();
+//        if (product == null){
+//            update("Product not found");
+//            return false;
+//        }
+//        System.out.println(product.toString());
+//        System.out.println(product.toStringAllOrders());
+//        System.out.println("Total Product Profit: " + product.calculateTotalProductProfit());
+//
+//        if (!product.getClass().equals(ProductSoldThroughWebsite.class))
+//            showInvoices((ProductSoldInCountry) product);
         return true;
     }
 

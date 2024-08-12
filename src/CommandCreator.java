@@ -38,14 +38,8 @@ public class CommandCreator implements Creator<Command>{
             case PRINT_ALL_ORDERS: {
                 return new printAllOrdersCommand();
             }
-            case BACKUP_SYSTEM, EXIT_PROGRAM: {
-                return new backupSystemCommand();
-            }
-            case RESTORE_SYSTEM: {
-                return new restoreSystemCommand();
-            }
             default:{
-                System.out.println("No such command");
+                System.out.println("Exiting System...");
             }
         }
         return null;

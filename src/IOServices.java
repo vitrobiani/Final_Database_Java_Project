@@ -1,4 +1,8 @@
+import org.postgresql.util.PSQLException;
+
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.InputMismatchException;
 import java.util.Objects;
 import java.util.Scanner;
@@ -107,4 +111,26 @@ public class IOServices implements Services{
         return null;
     }
 
+    public String getProductCode(){
+        ResultSet rs = null;
+        String code = null;
+        try {
+            rs =db.QueryDB("SELECT * FROM Products");
+
+            System.out.println("The Products: ");
+            while (rs.next()){
+                System.out.println("Code: " + rs.getString("code") + "  Name: " + rs.getString("name") + "  Stock: " + rs.getString("stock"));
+            }
+            System.out.println("Please enter the Product code: ");
+            do {
+                code = s.nextLine();
+            }while (db.isProductInDB(code));
+
+        } catch (PSQLException | ClassNotFoundException e){
+            System.out.println(e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return code;
+    }
 }

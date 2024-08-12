@@ -6,37 +6,57 @@ public class addProductCommand extends MenuActionCompleteListener implements Com
     private Services srv = IOServices.getInstance();
     @Override
     public boolean execute() {
+        ProductType TheProductType = null;
+        String TheShippingType = null;
+        ShippingType shippingType = null;
+        String TheSrcCountry = null;
+        String srcCountry = null;
         PairSet set = new PairSet();
         try {
-
-            set.addPair("ProductType", getProductType());
+            TheProductType = getProductType();
+            set.addPair("ProductType", TheProductType);
             set.addPair("code", getProductCode());
             set.addPair("name", getProductName());
             set.addPair("buyPrice", getBuyPrice());
             set.addPair("sellPrice", getSellPrice());
             set.addPair("weight", getWeight());
 
-            if (set.get("ProductType") == ProductType.SOLD_IN_STORE) {
-                ShippingType shippingType = getShippingType();
+            if (set.get("ProductType") == ProductType.SOLD_THROUGH_WEBSITE) {
+                shippingType = getShippingType();
                 set.addPair("ShippingType", shippingType);
-                String destCountry = srv.getDestCountry();
-                set.addPair("destCountry", destCountry);
+                srcCountry = srv.getDestCountry();
+                set.addPair("srcCountry", srcCountry);
             }
         }catch (Exception e){
             update("An error occurred in adding product");
             return false;
         }
+        if (shippingType != null){
+            if (shippingType == ShippingType.STANDARD) {
+                TheShippingType = "'standard'";
+            } else if(shippingType == ShippingType.EXPRESS){
+                TheShippingType = "'express'";
+            } else {
+                TheShippingType = "'both'";
+            }
+            TheSrcCountry = "'" + srcCountry + "'";
+        }
+        set.addPair("stock", 0);
+
         Creator c = new ProductCreator();
         Product p = (Product) c.create(set);
-        db.addProductToDB(p);
-        update("Product added successfully!");
-        return true;
+//        db.addProductToDB(p);
+        if (db.addProduct( "'" + p.code +"'", "'" + p.name + "'", p.buyPrice, p.sellPrice, p.weight, 0 ,"'" + TheProductType.toString() + "'", TheShippingType, TheSrcCountry)){
+            update("Product added successfully!");
+            return true;
+        }
+        return false;
     }
 
     private ProductType getProductType(){
         System.out.println("what kind of Product would you like to add:\n");
         srv.printProductTypes();
-        int type = srv.getInput((Integer i ) -> i < 0 || i > ProductType.values().length, "");
+        int type = srv.getInput((Integer i ) -> i < 0 || i > ProductType.values().length, "")-1;
         return ProductType.values()[type];
     }
 
@@ -45,7 +65,7 @@ public class addProductCommand extends MenuActionCompleteListener implements Com
         String code;
         do {
             code = s.nextLine();
-        }while (db.checkProductCode(code));
+        }while (!db.checkProductCode(code));
         return code;
     }
 
@@ -92,7 +112,7 @@ public class addProductCommand extends MenuActionCompleteListener implements Com
             System.out.println((i + 1) + ". " + ShippingType.values()[i]);
         }
 
-        int choice = srv.getInput((Integer i) -> i > 2 || i < 1, "please enter a number between 1 and 3");
+        int choice = srv.getInput((Integer i) -> i > 3 || i < 1, "please enter a number between 1 and 3");
         return ShippingType.values()[choice - 1];
     }
 }

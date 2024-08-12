@@ -11,6 +11,7 @@ public interface Services {
 
     public void printProductTypes();
 
+    public String getProductCode();
 
     public Product getProduct();
 }

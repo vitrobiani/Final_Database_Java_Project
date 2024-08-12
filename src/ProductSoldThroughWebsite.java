@@ -3,8 +3,8 @@ public class ProductSoldThroughWebsite extends Product {
     public String sourceCountry;
     ShippingType type;
 
-    public ProductSoldThroughWebsite(String code, String name, double buyPrice, double sellPrice, int weight, String sourceCountry, ShippingType type) {
-        super(code, name, buyPrice, sellPrice, weight);
+    public ProductSoldThroughWebsite(String code, String name, double buyPrice, double sellPrice, int weight, int stock, String sourceCountry, ShippingType type) {
+        super(code, name, buyPrice, sellPrice, weight, stock);
         this.sourceCountry = sourceCountry;
         this.type = type;
 

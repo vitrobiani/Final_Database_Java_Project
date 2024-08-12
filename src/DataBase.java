@@ -59,8 +59,8 @@ public class DataBase implements Serializable {
     }
 
     public boolean checkProductCode(String code){
-        if (code.length() != 4){
-            System.out.println("code must be 4 characters");
+        if (code.length() >= 4){
+            System.out.println("code must be 4 characters max");
             return false;
         }
         for (int i = 0; i < code.length(); i++) {
@@ -278,11 +278,12 @@ public class DataBase implements Serializable {
         products.add(new Pair("sellPrice","float NOT NULL"));
         products.add(new Pair("weight","integer NOT NULL"));
         products.add(new Pair("stock","integer NOT NULL"));
-        products.add(new Pair("ProductType","varchar(10) NOT NULL"));
+        products.add(new Pair("ProductType","varchar(50) NOT NULL"));
         products.add(new Pair("sourceCountry","varchar(50)"));
         products.add(new Pair("ShippingType","varchar(50)"));
-        products.add(new Pair("CHECK (ShippingType IN","('express', 'standard', 'both'))"));
         products.add(new Pair("CHECK (ProductType IN","('Website', 'Store', 'Wholesalers'))"));
+//        products.add(new Pair("CHECK (ShippingType IN","('express', 'standard', 'both'))"));
+
         return products;
     }
 
@@ -302,6 +303,78 @@ public class DataBase implements Serializable {
 
     public boolean removeProduct(String code){
         return removeFromTable("Products", "code", code);
+    }
+
+    public boolean isProductInDB(String code){
+        if (code.length() <= 4) return false;
+        ResultSet rs = null;
+        try {
+            rs = QueryDB("SELECT code FROM Products");
+            while (rs.next()){
+                if(rs.getString("code").equals(code)) return true;
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean updateProductStock(String code, int newStok){
+        try{
+            UpdateDB("UPDATE Products\n" +
+                    "SET stock = " + newStok +"\n" +
+                    "WHERE code LIKE '" + code + "';");
+        } catch (ClassNotFoundException | SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    public Product getProduct(String code){
+        Product p = null;
+        if (code.length() >= 4) return null;
+        ResultSet rs = null;
+        try {
+            rs = QueryDB("SELECT * FROM Products");
+            while (rs.next()){
+                if(rs.getString("code").equals(code)) {
+                    PairSet set = new PairSet();
+                    set.addPair("name",rs.getString("name"));
+                    set.addPair("code", code);
+                    set.addPair("buyPrice",Double.parseDouble(rs.getString("buyPrice")));
+                    set.addPair("sellPrice",Double.parseDouble(rs.getString("sellPrice")));
+                    set.addPair("weight", Integer.parseInt(rs.getString("weight")));
+                    set.addPair("stock", Integer.parseInt(rs.getString("stock")));
+                    set.addPair("srcCountry",rs.getString("sourcecountry"));
+                    ShippingType sp;
+                    if (rs.getString("ShippingType").equals("Standard")){
+                        sp = ShippingType.STANDARD;
+                    } else if (rs.getString("ShippingType").equals("Express")){
+                        sp = ShippingType.EXPRESS;
+                    } else {
+                        sp = ShippingType.ALL_SHIPPING;
+                    }
+                    set.addPair("ShippingType",sp);
+
+                    ProductType pt;
+                    if (rs.getString("ProductType").equals("Store")){
+                        pt = ProductType.SOLD_IN_STORE;
+                    } else if (rs.getString("ProductType").equals("Website")){
+                        pt = ProductType.SOLD_THROUGH_WEBSITE;
+                    } else {
+                        pt = ProductType.SOLD_TO_WHOLESALERS;
+                    }
+                    set.addPair("ProductType", pt);
+                    Creator<Product> creator = new ProductCreator();
+                    p = creator.create(set);
+                    return p;
+                }
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return p;
     }
 
     public ArrayList<Pair> ordersTable(){
@@ -326,6 +399,7 @@ public class DataBase implements Serializable {
     public boolean removeOrder(int id){
         return removeFromTable("Orders", "orderID", id);
     }
+
     public ArrayList<Pair> invoiceTable(){
         ArrayList<Pair> invoices = new ArrayList<>();
         invoices.add(new Pair("OrderID","integer NOT NULL"));

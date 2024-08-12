@@ -14,49 +14,19 @@ public class autoAddProductCommand extends MenuActionCompleteListener implements
 
     @Override
     public boolean execute() {
-        int size = db.getProducts().size();
-        for (int i = 0; i < ProductType.values().length; i++) {
-            addAmountProduct(ProductType.values()[i]);
-        }
-        if (db.getProducts().size() == size + 9){
-            update("Products added successfully");
-            return true;
-        }
-        update("An error occurred in adding products");
-        return false;
-    }
-    private void addAmountProduct(ProductType type){
-        for (int i = 0; i < amount; i++) {
-            PairSet set = new PairSet();
-            set.addPair("ProductType", type);
-            set.addPair("code", codes[ind]);
-            set.addPair("name", names[ind]);
-            set.addPair("sellPrice", sellPrices[ind]);
-            set.addPair("buyPrice", buyPrices[ind]);
-            set.addPair("weight", weights[ind++]);
+        db.addProduct("'HHH'", "'product10'", 100.0, 550.0, 10, 20, "'Store'", null, null);
+        db.addProduct("'III'", "'product11'", 110.0, 650.0, 11, 20, "'Store'", null, null);
+        db.addProduct("'JJJ'", "'product12'", 120.0, 750.0, 12, 20, "'Website'", "'USA'", "'standard'");
+        db.addProduct("'ABC'", "'product13'", 130.0, 890.0, 13, 20, "'Store'", null, null);
+        db.addProduct("'ABFF'", "'product14'", 1333.0, 8890.0, 52, 20, "'Website'", "'Israel'", "'both'");
+        db.addProduct("'FFAB'", "'product15'", 198.90, 890.0, 1, 20, "'Website'","'France'","'both'");
+        db.addProduct("'LSAG'", "'product16'", 18.0, 89.0, 3, 20, "'Wholesalers'","'Germany'","'standard'");
+        db.addProduct("'KJH'", "'product17'", 1.0, 8.0, 1, 20, "'Wholesalers'", "'Thailand'","'express'" );
+        db.addCustomer("'John'","'123456789'");
+        db.addCustomer("'Doe'","'987654321'");
+        db.addCustomer("'Jane'","'123123123'");
+        db.addOrder(1,5,"'HHH'");
 
-            if (type == ProductType.SOLD_THROUGH_WEBSITE){
-                set.addPair("ShippingType", ShippingType.values()[i]);
-                set.addPair("destCountry", db.getCountries().getRandomKey());
-            }
-            Product p = c.create(set);
-            db.addProductToDB(p);
-            p.updateStock(20);
-            createOrder(p);
-        }
-    }
-
-    private void createOrder(Product p){
-        for (int i = 0; i < amount; i++) {
-            PairSet set = new PairSet();
-            set.addPair("Product", p);
-            set.addPair("ProductClass", p.getClass().getSimpleName());
-            Customer c = new Customer(CustomerNames[i], CustomerPhones[i]);
-            set.addPair("Customer", c);
-            set.addPair("Quantity", 3);
-            if (p.getClass().equals(ProductSoldThroughWebsite.class))
-                set.addPair("ShippingType", ShippingType.values()[0]);
-            creator.create(set);
-        }
+        return true;
     }
 }
