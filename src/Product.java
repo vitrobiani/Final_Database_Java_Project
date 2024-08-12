@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.Stack;
 
 public abstract class Product implements Serializable, Comparable<Product> {
+    private DataBase db = DataBase.getInstance();
     public String code;
     public String name;
     public double buyPrice;
@@ -64,8 +65,8 @@ public abstract class Product implements Serializable, Comparable<Product> {
 
     //add order to orders FIFO style
     public void addOrder(Order order){
-        DataBase.getInstance().getStack().push(createMemento(order));
         orders.addLast(order);
+
     }
 
     public double calculateProductProfit(){
@@ -82,26 +83,6 @@ public abstract class Product implements Serializable, Comparable<Product> {
             sum += order.calculateOrderProfit();
         }
         return sum;
-    }
-
-    public static class Memento implements Serializable{
-        protected final Product product;
-        protected final Order order;
-        protected final int stock;
-        private Memento(Product product, Order order, int stock){
-            this.product = product;
-            this.order = order;
-            this.stock = stock;
-        }
-    }
-
-    public Memento createMemento(Order order){
-        return new Memento(this, order, stock);
-    }
-
-    public void setMemento(Memento m){
-        orders.removeLast();
-        stock = m.stock;
     }
 
     public String toString(){

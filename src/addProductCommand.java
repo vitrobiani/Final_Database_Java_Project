@@ -32,6 +32,7 @@ public class addProductCommand extends MenuActionCompleteListener implements Com
         update("Product added successfully!");
         return true;
     }
+
     private ProductType getProductType(){
         System.out.println("what kind of Product would you like to add:\n");
         srv.printProductTypes();

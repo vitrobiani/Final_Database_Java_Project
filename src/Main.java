@@ -1,10 +1,11 @@
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Main {
     public static Scanner s = new Scanner(System.in);
     public static DataBase db = DataBase.getInstance();
     public static IOServices srv = IOServices.getInstance();
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException, ClassNotFoundException {
         starter();
         lobby();
     }
@@ -25,7 +26,7 @@ public class Main {
         System.out.println("Goodbye!");
     }
 
-    public static void starter(){
+    public static void starter() throws SQLException, ClassNotFoundException {
         db.addCompanies();
         db.addCountries();
     }

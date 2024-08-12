@@ -1,12 +1,11 @@
-import java.io.Serial;
 import java.io.Serializable;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Stack;
 import java.util.TreeSet;
+import org.postgresql.util.PSQLException;
 
 public class DataBase implements Serializable {
-    private Stack<Product.Memento> stack;
     private static DataBase[] _instance = new DataBase[1];
     public TreeSet<Product> products;
     public PairSet countries;
@@ -14,9 +13,7 @@ public class DataBase implements Serializable {
 
     private DataBase(){
         products = new TreeSet<>();
-        stack = new Stack<>();
         companies = new ArrayList<>();
-
         countries = new PairSet();
     }
     public static DataBase getInstance() {
@@ -26,9 +23,8 @@ public class DataBase implements Serializable {
         return _instance[0];
     }
 
-    public void addCompanies(){
-        companies.add(new DHL());
-        companies.add(new FedEx());
+    public void addCompanies() throws SQLException, ClassNotFoundException {
+        initDB();
     }
 
     public void addCountries(){
@@ -52,14 +48,6 @@ public class DataBase implements Serializable {
 
     public PairSet getCountries(){
         return countries;
-    }
-
-    public Stack<Product.Memento> getStack(){
-        return stack;
-    }
-
-    public void setStack(Stack<Product.Memento> s){
-        this.stack = s;
     }
 
     public void addImportTax(String country, int tax){
@@ -100,7 +88,6 @@ public class DataBase implements Serializable {
 
     public void loadDataBase(DataBase ndb){
         _instance[0].setProducts(ndb.getProducts());
-        _instance[0].setStack(ndb.getStack());
     }
 
     public void AllOrdersOfProduct(String code){
@@ -113,6 +100,7 @@ public class DataBase implements Serializable {
          }
 
     }
+
     public String AllProductsInStoreToString(){
         StringBuilder sb = new StringBuilder();
         int i = 1;
@@ -121,5 +109,199 @@ public class DataBase implements Serializable {
             i++;
         }
         return sb.toString();
+    }
+
+    public void initDB() throws SQLException, ClassNotFoundException {
+        createTable("ShippingCompanies", shippingCompaniesTable());
+        createTable("Customers",customersTable());
+        createTable("Products", productsTable());
+        createTable("Orders", ordersTable());
+        createTable("Invoices", invoiceTable());
+    }
+
+    public ResultSet QueryDB(String query)  throws ClassNotFoundException, SQLException {
+        Connection conecto = null;
+        Class.forName("org.postgresql.Driver");
+
+        try {
+            String dbURL = "jdbc:postgresql://localhost:5432/DDOFinalProject";
+            conecto = DriverManager.getConnection(dbURL, "postgres", "123123");
+        } catch (Exception e) {
+            System.out.println("Error!: " + e.getMessage());
+        }
+
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            assert conecto != null;
+            stmt = conecto.createStatement();
+            rs = stmt.executeQuery(query);
+        } catch (PSQLException esql) {
+            System.out.println(esql.getMessage());
+        }
+
+        conecto.close();
+        return rs;
+    }
+
+    public int UpdateDB(String query)  throws ClassNotFoundException, SQLException {
+        Connection conecto = null;
+        Class.forName("org.postgresql.Driver");
+
+        try {
+            String dbURL = "jdbc:postgresql://localhost:5432/DDOFinalProject";
+            conecto = DriverManager.getConnection(dbURL, "postgres", "123123");
+        } catch (Exception e) {
+            System.out.println("Error!: " + e.getMessage());
+        }
+
+        Statement stmt = null;
+        int rs = 0;
+        try {
+            assert conecto != null;
+            stmt = conecto.createStatement();
+            rs = stmt.executeUpdate(query);
+        } catch (PSQLException esql) {
+            System.out.println(esql.getMessage());
+        }
+
+        System.out.println("Lines Changed: " + rs);
+        conecto.close();
+        return rs;
+    }
+
+    public void createTable(String tableName, ArrayList<Pair> cols){
+        StringBuilder query = new StringBuilder("CREATE TABLE IF NOT EXISTS "+tableName+"(\n");
+        int i = 0;
+        for (Pair pair : cols){
+            query.append("    "+pair.getKey()+" " + pair.getValue() + ((i == cols.size()-1) ? "\n" : (i == 0) ? " PRIMARY KEY,\n" : ",\n"));
+            i++;
+        }
+        query.append(");");
+        String q = query.toString();
+        try {
+            System.out.println(q);
+            UpdateDB(q);
+        }catch (ClassNotFoundException | SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public boolean addToTable(String tableName, ArrayList<Pair> data){
+        StringBuilder query = new StringBuilder("INSERT INTO "+tableName+" (");
+
+        for (int i = 0; i < data.size(); i++){
+            query.append(data.get(i).getKey()+ ((i == data.size()-1) ? "" : ", "));
+        }
+        query.append(")\nVALUES(");
+        for (int i = 0; i < data.size(); i++){
+            query.append(data.get(i).getValue()+ ((i == data.size()-1) ? "" : ", "));
+        }
+        query.append(");");
+        String q = query.toString();
+        int lines = 0;
+        try {
+            lines = UpdateDB(q);
+        }catch (ClassNotFoundException | SQLException e){
+            System.out.println(e.getMessage());
+            return false;
+        }
+
+        return lines > 0;
+    }
+
+    public <T> boolean removeFromTable(String tableName, String key ,T constraint){
+        StringBuilder query = new StringBuilder("DELETE FROM "+tableName+ '\n');
+        if (constraint instanceof Integer) {
+            query.append("WHERE " + key + " = " + constraint);
+        }
+        else if (constraint instanceof String) {
+            query.append("WHERE "+ key +" LIKE '" + constraint + "'");
+        }
+        int lines = 0;
+        try {
+            lines = UpdateDB(query.toString());
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } catch (ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+        return lines>0;
+    }
+
+    public ArrayList<Pair> shippingCompaniesTable() {
+        ArrayList<Pair> shippingCompanies = new ArrayList<>();
+        shippingCompanies.add(new Pair("name","varchar(50)"));
+        shippingCompanies.add(new Pair("contactName","varchar(50)"));
+        shippingCompanies.add(new Pair("contactNumber","varchar(50)"));
+        shippingCompanies.add(new Pair("regularShippingMult","float"));
+        shippingCompanies.add(new Pair("expressShippingMult","float"));
+        return shippingCompanies;
+    }
+
+    public boolean addShippingCompany(String name, Contact contact, double regularShippingMult, double expressShippingMult) {
+        ArrayList<Pair> shippingCompanies = new ArrayList<>();
+        shippingCompanies.add(new Pair("name",name));
+        shippingCompanies.add(new Pair("contactName",contact.name));
+        shippingCompanies.add(new Pair("contactNumber",contact.getPhoneNumber()));
+        shippingCompanies.add(new Pair("regularShippingMult",regularShippingMult));
+        shippingCompanies.add(new Pair("expressShippingMult",expressShippingMult));
+        return addToTable("ShippingCompanies", shippingCompanies);
+    }
+
+    public boolean removeShippingCompany(String name){
+        return removeFromTable("ShippingCompanies", "name", name);
+    }
+
+    public ArrayList<Pair> customersTable(){
+        ArrayList<Pair> customers = new ArrayList<>();
+        customers.add(new Pair("customerID","SERIAL"));
+        customers.add(new Pair("name","varchar(50)"));
+        customers.add(new Pair("PhoneNumber","varchar(50)"));
+        return customers;
+    }
+
+    public boolean addCustomer(String name, String phoneNumber){
+        ArrayList<Pair> customers = new ArrayList<>();
+        customers.add(new Pair("name", name));
+        customers.add(new Pair("PhoneNumber", phoneNumber));
+        return addToTable("Customers", customers);
+    }
+
+    public boolean removeCustomer(int id){
+        return removeFromTable("Customers", "customerid", id);
+    }
+
+    public ArrayList<Pair> productsTable(){
+        ArrayList<Pair> products = new ArrayList<>();
+        products.add(new Pair("code","varchar(10) NOT NULL"));
+        products.add(new Pair("name","varchar(50) NOT NULL"));
+        products.add(new Pair("buyPrice","float NOT NULL"));
+        products.add(new Pair("sellPrice","float NOT NULL"));
+        products.add(new Pair("weight","integer NOT NULL"));
+        products.add(new Pair("stock","integer NOT NULL"));
+        products.add(new Pair("ProductType","varchar(10) NOT NULL"));
+        products.add(new Pair("sourceCountry","varchar(50)"));
+        products.add(new Pair("ShippingType","varchar(50)"));
+        products.add(new Pair("CHECK (ShippingType IN","('express', 'standard', 'both')"));
+        products.add(new Pair("CHECK (ProductType IN","('country', 'Store', 'Wholesalers')"));
+        return products;
+    }
+
+    public ArrayList<Pair> ordersTable(){
+        ArrayList<Pair> orders = new ArrayList<>();
+        orders.add(new Pair("customerID","integer NOT NULL"));
+        orders.add(new Pair("quantity","integer NOT NULL"));
+        orders.add(new Pair("ProductID","varchar(10)"));
+        orders.add(new Pair("FOREIGN KEY (ProductID)", "REFERENCES (Products(code))"));
+        return orders;
+    }
+
+    public ArrayList<Pair> invoiceTable(){
+        ArrayList<Pair> invoices = new ArrayList<>();
+        invoices.add(new Pair("ProductID","varchar(10)"));
+        invoices.add(new Pair("Date","datetime"));
+        invoices.add(new Pair("FOREIGN KEY (ProductID)", "REFERENCES (ProductsCountry(code))"));
+        return invoices;
     }
 }

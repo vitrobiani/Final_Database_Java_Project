@@ -6,6 +6,7 @@ public abstract class Order implements Serializable {
     Customer customer;
     int quantity;
     Product product;
+
     public Order(Customer customer, int quantity, Product product) {
         this.customer = customer;
         this.quantity = quantity;
