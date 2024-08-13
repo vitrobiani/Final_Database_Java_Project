@@ -1,11 +1,11 @@
 import java.io.Serializable;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Stack;
-import java.util.TreeSet;
+import java.util.*;
+
 import org.postgresql.util.PSQLException;
 
 public class DataBase implements Serializable {
+    String[] passwards = {"123123", "1234"};
     private static DataBase[] _instance = new DataBase[1];
     public TreeSet<Product> products;
     public PairSet countries;
@@ -90,17 +90,6 @@ public class DataBase implements Serializable {
         _instance[0].setProducts(ndb.getProducts());
     }
 
-    public void AllOrdersOfProduct(String code){
-       Product p = findProduct(code);
-         int i=1;
-         for(Order o: p.orders){
-             System.out.println(i+"."+o);
-             System.out.println("profit:"+p.calculateProductProfit()*o.getQuantity());
-             i++;
-         }
-
-    }
-
     public String AllProductsInStoreToString(){
         StringBuilder sb = new StringBuilder();
         int i = 1;
@@ -112,61 +101,89 @@ public class DataBase implements Serializable {
     }
 
     public void initDB() throws SQLException, ClassNotFoundException {
-        createTable("ShippingCompanies", shippingCompaniesTable());
-        createTable("Customers",customersTable());
-        createTable("Products", productsTable());
-        createTable("Orders", ordersTable());
-        createTable("Invoices", invoiceTable());
+        createTable(TN.SHIPPING_COMPANY.tname(), shippingCompaniesTable());
+        createTable(TN.CUSTOMER.tname(), customersTable());
+        createTable(TN.PRODUCT.tname(), productsTable());
+        createTable(TN.ORDER.tname(), ordersTable());
+        createTable(TN.INVOICE.tname(), invoiceTable());
     }
 
     public ResultSet QueryDB(String query)  throws ClassNotFoundException, SQLException {
-        Connection conecto = null;
         Class.forName("org.postgresql.Driver");
-
-        try {
-            String dbURL = "jdbc:postgresql://localhost:5432/DDOFinalProject";
-            conecto = DriverManager.getConnection(dbURL, "postgres", "1234");
-        } catch (Exception e) {
-            System.out.println("Error!: " + e.getMessage());
-        }
-
+        Connection conecto = null;
         Statement stmt = null;
         ResultSet rs = null;
-        try {
-            assert conecto != null;
-            stmt = conecto.createStatement();
-            rs = stmt.executeQuery(query);
-        } catch (PSQLException esql) {
-            System.out.println(esql.getMessage());
+
+        for (int i = 0; i < passwards.length; i++) {
+            String password = passwards[i];
+            try {
+                String dbURL = "jdbc:postgresql://localhost:5432/DDOFinalProject";
+                conecto = DriverManager.getConnection(dbURL, "postgres", password);
+
+                assert conecto != null;
+                stmt = conecto.createStatement();
+                rs = stmt.executeQuery(query);
+            } catch (PSQLException esql) {
+                sqlExceptionMachine(esql);
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+            }
         }
 
+        assert conecto != null;
         conecto.close();
         return rs;
     }
 
     public int UpdateDB(String query)  throws ClassNotFoundException, SQLException {
-        Connection conecto = null;
         Class.forName("org.postgresql.Driver");
-
-        try {
-            String dbURL = "jdbc:postgresql://localhost:5432/DDOFinalProject";
-            conecto = DriverManager.getConnection(dbURL, "postgres", "1234");
-        } catch (Exception e) {
-            System.out.println("Error!: " + e.getMessage());
-        }
-
+        Connection conecto = null;
         Statement stmt = null;
         int rs = 0;
-        try {
-            assert conecto != null;
-            stmt = conecto.createStatement();
-            rs = stmt.executeUpdate(query);
-        } catch (PSQLException esql) {
-            System.out.println(esql.getMessage());
+        for (int i = 0; i < passwards.length; i++) {
+            String passward = passwards[i];
+            try {
+                String dbURL = "jdbc:postgresql://localhost:5432/DDOFinalProject";
+                conecto = DriverManager.getConnection(dbURL, "postgres", passward);
+
+                assert conecto != null;
+                stmt = conecto.createStatement();
+                rs = stmt.executeUpdate(query);
+            } catch (PSQLException esql) {
+                sqlExceptionMachine(esql);
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+            }
         }
 
+        assert conecto != null;
         conecto.close();
         return rs;
+    }
+
+    public void sqlExceptionMachine(PSQLException esql){
+        String sqlState = esql.getSQLState();
+        if (sqlState != null) {
+            switch (sqlState) {
+                case "23505": { // Unique constraint violation
+                    System.out.println("Constraint Violation");
+                    break;
+                }case "08001": { // SQLClient unable to establish SQLConnection
+                    System.out.println("Connection Problems");
+                    break;
+                }case "28P01":{
+                    break;
+                }case "42703":{
+                    System.out.println(esql.getMessage());
+                    break;
+                }default:
+                    // Optionally log other errors or rethrow
+                    System.err.println("Unhandled SQL State: " + sqlState + " Error: " + esql.getMessage());
+            }
+        } else {
+            // For exceptions without a SQLState
+            System.err.println("SQLState not available, error: " + esql.getMessage());
+        }
     }
 
     public void createTable(String tableName, ArrayList<Pair> cols){
@@ -229,59 +246,116 @@ public class DataBase implements Serializable {
 
     public ArrayList<Pair> shippingCompaniesTable() {
         ArrayList<Pair> shippingCompanies = new ArrayList<>();
-        shippingCompanies.add(new Pair("name","varchar(50)"));
-        shippingCompanies.add(new Pair("contactName","varchar(50)"));
-        shippingCompanies.add(new Pair("contactNumber","varchar(50)"));
-        shippingCompanies.add(new Pair("regularShippingMult","float"));
-        shippingCompanies.add(new Pair("expressShippingMult","float"));
+        shippingCompanies.add(new Pair(TN.SHIPPING_COMPANY_NAME.tname(), TN.SHIPPING_COMPANY_NAME.type()));
+        shippingCompanies.add(new Pair(TN.CONTACT_NAME.tname(), TN.CONTACT_NAME.type()));
+        shippingCompanies.add(new Pair(TN.CONTACT_NUMBER.tname(), TN.CONTACT_NUMBER.type()));
+        shippingCompanies.add(new Pair(TN.REGULAR_SHIPPING_MULT.tname(), TN.REGULAR_SHIPPING_MULT.type()));
+        shippingCompanies.add(new Pair(TN.EXPRESS_SHIPPING_MULT.tname(), TN.EXPRESS_SHIPPING_MULT.type()));
         return shippingCompanies;
     }
 
     public boolean addShippingCompany(String name, Contact contact, double regularShippingMult, double expressShippingMult) {
         ArrayList<Pair> shippingCompanies = new ArrayList<>();
-        shippingCompanies.add(new Pair("name",name));
-        shippingCompanies.add(new Pair("contactName",contact.name));
-        shippingCompanies.add(new Pair("contactNumber",contact.getPhoneNumber()));
-        shippingCompanies.add(new Pair("regularShippingMult",regularShippingMult));
-        shippingCompanies.add(new Pair("expressShippingMult",expressShippingMult));
-        return addToTable("ShippingCompanies", shippingCompanies);
+        shippingCompanies.add(new Pair(TN.SHIPPING_COMPANY_NAME.tname(), name));
+        shippingCompanies.add(new Pair(TN.CONTACT_NAME.tname(), contact.getName()));
+        shippingCompanies.add(new Pair(TN.CONTACT_NUMBER.tname(), contact.getPhoneNumber()));
+        shippingCompanies.add(new Pair(TN.REGULAR_SHIPPING_MULT.tname(), regularShippingMult));
+        shippingCompanies.add(new Pair(TN.EXPRESS_SHIPPING_MULT.tname(), expressShippingMult));
+        return addToTable(TN.SHIPPING_COMPANY.tname(), shippingCompanies);
     }
 
     public boolean removeShippingCompany(String name){
-        return removeFromTable("ShippingCompanies", "name", name);
+        return removeFromTable(TN.SHIPPING_COMPANY.tname(), TN.SHIPPING_COMPANY_NAME.tname(), name);
+    }
+
+    public ShippingCompany getShippingCompany(String name){
+        try{
+            ResultSet rs = QueryDB("SELECT * FROM " + TN.SHIPPING_COMPANY.tname());
+            while(rs.next()){
+                if (rs.getString(TN.SHIPPING_COMPANY_NAME.tname()).equals(name)){
+                    return makeRSShippingCompany(rs);
+                }
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
+    public ShippingCompany makeRSShippingCompany(ResultSet rs) throws SQLException {
+        String name = rs.getString(TN.SHIPPING_COMPANY_NAME.tname());
+        Contact c = new Contact(rs.getString(TN.CONTACT_NAME.tname()), rs.getString(TN.CONTACT_NUMBER.tname()));
+        double rsm = Double.parseDouble(rs.getString(TN.REGULAR_SHIPPING_MULT.tname()));
+        double esm = Double.parseDouble(rs.getString(TN.EXPRESS_SHIPPING_MULT.tname()));
+
+        return new ShippingCompany(name, c, rsm, esm);
+    }
+
+    public Set<ShippingCompany> getAllShippingCompanies(){
+        Set<ShippingCompany> set = new HashSet<>();
+        try{
+            ResultSet rs = QueryDB("SELECT * FROM " + TN.SHIPPING_COMPANY.tname());
+            while(rs.next()){
+                set.add(makeRSShippingCompany(rs));
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+        return set;
     }
 
     public ArrayList<Pair> customersTable(){
         ArrayList<Pair> customers = new ArrayList<>();
-        customers.add(new Pair("customerID","SERIAL"));
-        customers.add(new Pair("name","varchar(50)"));
-        customers.add(new Pair("PhoneNumber","varchar(50)"));
+        customers.add(new Pair(TN.CUSTOMER_PHONE.tname(), TN.CUSTOMER_PHONE.type()));
+        customers.add(new Pair(TN.CUSTOMER_NAME.tname(), TN.CUSTOMER_NAME.type()));
         return customers;
     }
 
     public boolean addCustomer(String name, String phoneNumber){
         ArrayList<Pair> customers = new ArrayList<>();
-        customers.add(new Pair("name", name));
-        customers.add(new Pair("PhoneNumber", phoneNumber));
+        customers.add(new Pair(TN.CUSTOMER_NAME.tname(), name));
+        customers.add(new Pair(TN.CUSTOMER_PHONE.tname(), phoneNumber));
         return addToTable("Customers", customers);
     }
 
     public boolean removeCustomer(int id){
-        return removeFromTable("Customers", "customerid", id);
+        return removeFromTable(TN.CUSTOMER.tname(), TN.CUSTOMER_PHONE.tname(), id);
+    }
+
+    public Customer getCustomer(String phoneNumber){
+        Customer c = null;
+        try{
+            ResultSet rs = QueryDB("SELECT * FROM Customers");
+            while (rs.next()){
+                if (rs.getString(TN.CUSTOMER_PHONE.tname()).equals(phoneNumber)){
+                    c = makeRSCustomer(rs);
+                }
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return c;
+    }
+
+    public Customer makeRSCustomer(ResultSet rs) throws SQLException {
+        String name = rs.getString(TN.CUSTOMER_NAME.tname());
+        String phoneNumber = rs.getString(TN.CUSTOMER_PHONE.tname());
+        return new Customer(name, phoneNumber);
     }
 
     public ArrayList<Pair> productsTable(){
         ArrayList<Pair> products = new ArrayList<>();
-        products.add(new Pair("code","varchar(10) NOT NULL"));
-        products.add(new Pair("name","varchar(50) NOT NULL"));
-        products.add(new Pair("buyPrice","float NOT NULL"));
-        products.add(new Pair("sellPrice","float NOT NULL"));
-        products.add(new Pair("weight","integer NOT NULL"));
-        products.add(new Pair("stock","integer NOT NULL"));
-        products.add(new Pair("ProductType","varchar(50) NOT NULL"));
-        products.add(new Pair("sourceCountry","varchar(50)"));
-        products.add(new Pair("ShippingType","varchar(50)"));
-        products.add(new Pair("CHECK (ProductType IN","('Website', 'Store', 'Wholesalers'))"));
+        products.add(new Pair(TN.PRODUCT_CODE.tname(), TN.PRODUCT_CODE.type()));
+        products.add(new Pair(TN.PRODUCT_NAME.tname(), TN.PRODUCT_NAME.type()));
+        products.add(new Pair(TN.PRODUCT_BUY_PRICE.tname(), TN.PRODUCT_BUY_PRICE.type()));
+        products.add(new Pair(TN.PRODUCT_SELL_PRICE.tname(), TN.PRODUCT_SELL_PRICE.type()));
+        products.add(new Pair(TN.PRODUCT_WEIGHT.tname(), TN.PRODUCT_WEIGHT.type()));
+        products.add(new Pair(TN.PRODUCT_STOCK.tname(), TN.PRODUCT_STOCK.type()));
+        products.add(new Pair(TN.PRODUCT_TYPE.tname(), TN.PRODUCT_TYPE.type()));
+        products.add(new Pair(TN.PRODUCT_COUNTRY.tname(), TN.PRODUCT_COUNTRY.type()));
+        products.add(new Pair(TN.PRODUCT_SHIPPING_TYPE.tname(), TN.PRODUCT_SHIPPING_TYPE.type()));
+        products.add(new Pair("CHECK ("+TN.PRODUCT_TYPE.tname()+" IN","('Website', 'Store', 'Wholesalers'))"));
 //        products.add(new Pair("CHECK (ShippingType IN","('express', 'standard', 'both'))"));
 
         return products;
@@ -289,41 +363,27 @@ public class DataBase implements Serializable {
 
     public boolean addProduct(String code, String name, double buyPrice, double sellPrice, int weight, int stock, String productType, String sourceCountry, String shippingType){
         ArrayList<Pair> products = new ArrayList<>();
-        products.add(new Pair("code", code));
-        products.add(new Pair("name", name));
-        products.add(new Pair("buyPrice", buyPrice));
-        products.add(new Pair("sellPrice", sellPrice));
-        products.add(new Pair("weight", weight));
-        products.add(new Pair("stock", stock));
-        products.add(new Pair("ProductType", productType));
-        products.add(new Pair("sourceCountry", sourceCountry));
-        products.add(new Pair("ShippingType", shippingType));
-        return addToTable("Products", products);
+        products.add(new Pair(TN.PRODUCT_CODE.tname(), code));
+        products.add(new Pair(TN.PRODUCT_NAME.tname(), name));
+        products.add(new Pair(TN.PRODUCT_BUY_PRICE.tname(), buyPrice));
+        products.add(new Pair(TN.PRODUCT_SELL_PRICE.tname(), sellPrice));
+        products.add(new Pair(TN.PRODUCT_WEIGHT.tname(), weight));
+        products.add(new Pair(TN.PRODUCT_STOCK.tname(), stock));
+        products.add(new Pair(TN.PRODUCT_TYPE.tname(), productType));
+        products.add(new Pair(TN.PRODUCT_COUNTRY.tname(), sourceCountry));
+        products.add(new Pair(TN.PRODUCT_SHIPPING_TYPE.tname(), shippingType));
+        return addToTable(TN.PRODUCT.tname(), products);
     }
 
     public boolean removeProduct(String code){
-        return removeFromTable("Products", "code", code);
+        return removeFromTable(TN.PRODUCT.tname(), TN.PRODUCT_CODE.tname(), code);
     }
 
-    public boolean isProductInDB(String code){
-        if (code.length() <= 4) return false;
-        ResultSet rs = null;
-        try {
-            rs = QueryDB("SELECT code FROM Products");
-            while (rs.next()){
-                if(rs.getString("code").equals(code)) return true;
-            }
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        return false;
-    }
-
-    public boolean updateProductStock(String code, int newStok){
+    public boolean updateProductStock(String code, int newStock){
         try{
-            UpdateDB("UPDATE Products\n" +
-                    "SET stock = " + newStok +"\n" +
-                    "WHERE code LIKE '" + code + "';");
+            UpdateDB("UPDATE "+ TN.PRODUCT.tname() + "\n" +
+                    "SET " + TN.PRODUCT_STOCK.tname() +" = " + newStock +"\n" +
+                    "WHERE " + TN.PRODUCT_CODE.tname() +" LIKE '" + code + "';");
         } catch (ClassNotFoundException | SQLException e) {
             System.out.println(e.getMessage());
             return false;
@@ -336,38 +396,10 @@ public class DataBase implements Serializable {
         if (code.length() >= 4) return null;
         ResultSet rs = null;
         try {
-            rs = QueryDB("SELECT * FROM Products");
+            rs = QueryDB("SELECT * FROM " + TN.PRODUCT.tname());
             while (rs.next()){
-                if(rs.getString("code").equals(code)) {
-                    PairSet set = new PairSet();
-                    set.addPair("name",rs.getString("name"));
-                    set.addPair("code", code);
-                    set.addPair("buyPrice",Double.parseDouble(rs.getString("buyPrice")));
-                    set.addPair("sellPrice",Double.parseDouble(rs.getString("sellPrice")));
-                    set.addPair("weight", Integer.parseInt(rs.getString("weight")));
-                    set.addPair("stock", Integer.parseInt(rs.getString("stock")));
-                    set.addPair("srcCountry",rs.getString("sourcecountry"));
-                    ShippingType sp;
-                    if (rs.getString("ShippingType").equals("Standard")){
-                        sp = ShippingType.STANDARD;
-                    } else if (rs.getString("ShippingType").equals("Express")){
-                        sp = ShippingType.EXPRESS;
-                    } else {
-                        sp = ShippingType.ALL_SHIPPING;
-                    }
-                    set.addPair("ShippingType",sp);
-
-                    ProductType pt;
-                    if (rs.getString("ProductType").equals("Store")){
-                        pt = ProductType.SOLD_IN_STORE;
-                    } else if (rs.getString("ProductType").equals("Website")){
-                        pt = ProductType.SOLD_THROUGH_WEBSITE;
-                    } else {
-                        pt = ProductType.SOLD_TO_WHOLESALERS;
-                    }
-                    set.addPair("ProductType", pt);
-                    Creator<Product> creator = new ProductCreator();
-                    p = creator.create(set);
+                if(rs.getString(TN.PRODUCT_CODE.tname()).equals(code)) {
+                    p = makeRSProduct(rs);
                     return p;
                 }
             }
@@ -377,45 +409,121 @@ public class DataBase implements Serializable {
         return p;
     }
 
+    public Product makeRSProduct(ResultSet rs) throws SQLException {
+        PairSet set = new PairSet();
+        set.addPair("name",rs.getString(TN.PRODUCT_NAME.tname()));
+        set.addPair("code", rs.getString(TN.PRODUCT_CODE.tname()));
+        set.addPair("buyPrice",Double.parseDouble(rs.getString(TN.PRODUCT_BUY_PRICE.tname())));
+        set.addPair("sellPrice",Double.parseDouble(rs.getString(TN.PRODUCT_SELL_PRICE.tname())));
+        set.addPair("weight", Integer.parseInt(rs.getString(TN.PRODUCT_WEIGHT.tname())));
+        set.addPair("stock", Integer.parseInt(rs.getString(TN.PRODUCT_STOCK.tname())));
+        set.addPair("srcCountry",rs.getString(TN.PRODUCT_COUNTRY.tname()));
+        if (rs.getString(TN.PRODUCT_SHIPPING_TYPE.tname()) != null) {
+            ShippingType st;
+            if (rs.getString(TN.PRODUCT_SHIPPING_TYPE.tname()).equals("Standard")) {
+                st = ShippingType.STANDARD;
+            } else if (rs.getString(TN.PRODUCT_SHIPPING_TYPE.tname()).equals("Express")) {
+                st = ShippingType.EXPRESS;
+            } else {
+                st = ShippingType.ALL_SHIPPING;
+            }
+            set.addPair("ShippingType", st);
+        }
+        if (rs.getString(TN.PRODUCT_TYPE.tname()) != null) {
+            ProductType pt;
+            if (rs.getString(TN.PRODUCT_TYPE.tname()).equals("Store")) {
+                pt = ProductType.SOLD_IN_STORE;
+            } else if (rs.getString(TN.PRODUCT_TYPE.tname()).equals("Website")) {
+                pt = ProductType.SOLD_THROUGH_WEBSITE;
+            } else {
+                pt = ProductType.SOLD_TO_WHOLESALERS;
+            }
+            set.addPair("ProductType", pt);
+        }
+        Creator<Product> creator = new ProductCreator();
+
+        return creator.create(set);
+    }
+
+    public Set<Product> getAllProducts(){
+        Set<Product> productsSet = new HashSet<>();
+        ResultSet rs = null;
+        try {
+            rs = QueryDB("SELECT * FROM " + TN.PRODUCT.tname());
+            while (rs.next()) productsSet.add(makeRSProduct(rs));
+        } catch (ClassNotFoundException | SQLException esql){
+            System.out.println(esql.getMessage());
+        }
+        return productsSet;
+    }
+
     public ArrayList<Pair> ordersTable(){
         ArrayList<Pair> orders = new ArrayList<>();
-        orders.add(new Pair("orderID","SERIAL"));
-        orders.add(new Pair("customerID","integer NOT NULL"));
-        orders.add(new Pair("FOREIGN KEY (customerID)", "REFERENCES customers(customerid)"));
-        orders.add(new Pair("quantity","integer NOT NULL"));
-        orders.add(new Pair("ProductID","varchar(10)"));
-        orders.add(new Pair("FOREIGN KEY (ProductID)", "REFERENCES Products(code)"));
+        orders.add(new Pair(TN.ORDER_ID.tname(), TN.ORDER_ID.type()));
+        orders.add(new Pair(TN.ORDER_CUSTOMER.tname(), TN.ORDER_CUSTOMER.type()));
+        orders.add(new Pair(TN.ORDER_QUANTITY.tname(), TN.ORDER_QUANTITY.type()));
+        orders.add(new Pair(TN.ORDER_PRODUCT.tname(), TN.ORDER_PRODUCT.type()));
+        orders.add(new Pair(TN.ORDER_SHIPPING_TYPE.tname(), TN.ORDER_SHIPPING_COMPANY.type()));
+        orders.add(new Pair(TN.ORDER_SHIPPING_COMPANY.tname(), TN.ORDER_SHIPPING_COMPANY.type()));
+        orders.add(new Pair("FOREIGN KEY ("+TN.ORDER_CUSTOMER.tname()+")", "REFERENCES "+TN.CUSTOMER.tname()+"("+TN.CUSTOMER_PHONE.tname()+")"));
+        orders.add(new Pair("FOREIGN KEY ("+TN.ORDER_PRODUCT.tname()+")", "REFERENCES "+TN.PRODUCT.tname()+"("+TN.PRODUCT_CODE.tname()+")"));
+        orders.add(new Pair("FOREIGN KEY ("+TN.ORDER_SHIPPING_COMPANY.tname()+")", "REFERENCES "+TN.SHIPPING_COMPANY.tname()+"("+TN.SHIPPING_COMPANY_NAME.tname()+")"));
         return orders;
     }
 
-    public boolean addOrder(int customerID, int quantity, String productID){
+    public boolean addOrder(Customer customer, int quantity, Product p,  String shippingType, String shippingCompany){
         ArrayList<Pair> orders = new ArrayList<>();
-        orders.add(new Pair("customerID", customerID));
-        orders.add(new Pair("quantity", quantity));
-        orders.add(new Pair("ProductID", productID));
-        return addToTable("Orders", orders);
+        orders.add(new Pair(TN.ORDER_CUSTOMER.tname(), customer.getPhoneNumber()));
+        orders.add(new Pair(TN.ORDER_QUANTITY.tname(), quantity));
+        orders.add(new Pair(TN.ORDER_PRODUCT.tname(), "'"+p.code+"'"));
+        orders.add(new Pair(TN.ORDER_SHIPPING_TYPE.tname(),shippingType ));
+        orders.add(new Pair(TN.ORDER_SHIPPING_COMPANY.tname(),shippingCompany));
+        updateProductStock(p.code, p.stock);
+        return addToTable(TN.ORDER.tname(), orders);
     }
 
     public boolean removeOrder(int id){
-        return removeFromTable("Orders", "orderID", id);
+        return removeFromTable(TN.ORDER.tname(), TN.ORDER_ID.tname(), id);
+    }
+
+    public Order makeRSOrder(ResultSet rs){
+        Order order = null;
+//        TODO
+
+        return order;
+    }
+
+    public Map<Order, Product> getAllOrders(){
+        Map<Order, Product> orders = new HashMap<>();
+        try{ ResultSet rs = QueryDB("SELECT * FROM ("+ TN.ORDER.tname() + "JOIN "+ TN.PRODUCT.tname() +" ON (" + TN.ORDER_PRODUCT.tname() + " = " + TN.PRODUCT_CODE + ");");
+            while (rs.next()){
+//                TODO
+
+            }
+
+        } catch (SQLException | ClassNotFoundException  e) {
+            System.out.println(e.getMessage());
+        }
+        return orders;
     }
 
     public ArrayList<Pair> invoiceTable(){
         ArrayList<Pair> invoices = new ArrayList<>();
-        invoices.add(new Pair("OrderID","integer NOT NULL"));
-        invoices.add(new Pair("Date","timestamp"));
-        invoices.add(new Pair("FOREIGN KEY (OrderID)", "REFERENCES Orders(orderid)"));
+        invoices.add(new Pair(TN.INVOICE_ID.tname(), TN.INVOICE_ID.type()));
+        invoices.add(new Pair(TN.INVOICE_ORDER.tname(), TN.INVOICE_ORDER.type()));
+        invoices.add(new Pair(TN.INVOICE_DATE.tname(), TN.INVOICE_DATE.type()));
+        invoices.add(new Pair("FOREIGN KEY ("+TN.INVOICE_ORDER.tname()+")", "REFERENCES "+TN.ORDER.tname()+"("+TN.ORDER_ID.tname()+")"));
         return invoices;
     }
 
     public boolean addInvoice(String OrderID){
         ArrayList<Pair> invoices = new ArrayList<>();
-        invoices.add(new Pair("OrderId", OrderID));
-        invoices.add(new Pair("Date", "CURRENT_TIMESTAMP"));
-        return addToTable("Invoices", invoices);
+        invoices.add(new Pair(TN.INVOICE_ORDER.tname(), OrderID));
+        invoices.add(new Pair(TN.INVOICE_DATE.tname(), "CURRENT_TIMESTAMP"));
+        return addToTable(TN.INVOICE.tname(), invoices);
     }
 
     public boolean removeInvoice(int id){
-        return removeFromTable("Invoices", "OrderID", id);
+        return removeFromTable(TN.INVOICE.tname(), TN.INVOICE_ORDER.tname(), id);
     }
 }

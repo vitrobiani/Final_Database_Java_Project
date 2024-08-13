@@ -1,3 +1,5 @@
+import java.util.Set;
+
 public class OrderThroughWebsite extends Order{
     DataBase db = DataBase.getInstance();
     ShippingType shippingType;
@@ -5,44 +7,42 @@ public class OrderThroughWebsite extends Order{
     public OrderThroughWebsite(Customer customer, int quantity, Product product, ShippingType shippingType) {
         super(customer, quantity, product);
         this.shippingType = shippingType;
-        ((ProductSoldThroughWebsite) product).addOrder(this);
         product.updateStock(product.getStock() - quantity);
         this.company = setShippingCompany();
     }
 
     public ShippingCompany setShippingCompany(){
+        Set<ShippingCompany> set = db.getAllShippingCompanies();
         switch(shippingType){
             case EXPRESS: {
-                return bestExpressShipping();
+                return bestExpressShipping(set);
             }
             case STANDARD:{
-                return bestStandardShipping();
+                return bestStandardShipping(set);
             }
         }
         return null;
     }
 
-    public ShippingCompany bestExpressShipping(){
-        double bestPrice = db.companies.getFirst().calculateExpressShippingCost(this);
-        ShippingCompany bestCompany = db.companies.getFirst();
-        for (ShippingCompany company: db.companies){
-            double i = company.calculateExpressShippingCost(this);
-            if (i <= bestPrice) {
-                bestCompany = company;
-                bestPrice = i;
+    public ShippingCompany bestExpressShipping(Set<ShippingCompany> set){
+        double bestPrice = Double.POSITIVE_INFINITY;
+        ShippingCompany bestCompany = null;
+        for (ShippingCompany sc: set){
+            if (sc.calculateExpressShippingCost(this) < bestPrice){
+                bestCompany = sc;
+                bestPrice = sc.calculateExpressShippingCost(this);
             }
         }
         return bestCompany;
     }
 
-    public ShippingCompany bestStandardShipping() {
-        double bestPrice = db.companies.getFirst().calculateRegularShippingCost(this);
-        ShippingCompany bestCompany = db.companies.getFirst();
-        for (ShippingCompany company : db.companies) {
-            double i = company.calculateRegularShippingCost(this);
-            if (i <= bestPrice) {
-                bestCompany = company;
-                bestPrice = i;
+    public ShippingCompany bestStandardShipping(Set<ShippingCompany> set) {
+        double bestPrice = Double.POSITIVE_INFINITY;
+        ShippingCompany bestCompany = null;
+        for (ShippingCompany sc: set){
+            if (sc.calculateRegularShippingCost(this) < bestPrice){
+                bestCompany = sc;
+                bestPrice = sc.calculateRegularShippingCost(this);
             }
         }
         return bestCompany;
@@ -56,7 +56,7 @@ public class OrderThroughWebsite extends Order{
             sb.append(company.calculateRegularShippingCost(this));
         else
             sb.append(company.calculateExpressShippingCost(this));
-        sb.append("\nShipping Company: " + company.getClass().getSimpleName());
+        sb.append("\nShipping Company: " + company.Name);
 
         return sb.toString();
     }

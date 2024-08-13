@@ -25,7 +25,8 @@ public class autoAddProductCommand extends MenuActionCompleteListener implements
         db.addCustomer("'John'","'123456789'");
         db.addCustomer("'Doe'","'987654321'");
         db.addCustomer("'Jane'","'123123123'");
-        db.addOrder(1,5,"'HHH'");
+        db.addOrder(db.getCustomer("123456789"), 5,db.getProduct("HHH"));
+        db.addShippingCompany("'UPS'", new Contact("dolev", "555666"), 1.5, 2.3);
 
         return true;
     }

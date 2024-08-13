@@ -8,12 +8,6 @@ public abstract class ProductSoldInCountry extends Product {
         invoices = new ArrayList<>();
     }
 
-    @Override
-    public void addOrder(Order order) {
-        super.addOrder(order);
-        invoices.add(new Invoice(order));
-    }
-
     public ArrayList<Invoice> getInvoices(){
         return invoices;
     }

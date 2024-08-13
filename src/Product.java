@@ -20,7 +20,6 @@ public abstract class Product implements Serializable, Comparable<Product> {
         this.sellPrice = sellPrice;
         this.weight = weight;
         this.stock = 0;
-        orders = new LinkedList<>();
     }
 
     public Product(String code, String name, double buyPrice, double sellPrice, int weight, int stock) {
@@ -30,9 +29,7 @@ public abstract class Product implements Serializable, Comparable<Product> {
         this.sellPrice = sellPrice;
         this.weight = weight;
         this.stock = stock;
-        orders = new LinkedList<>();
     }
-
 
     public String getCode() {
         return code;
@@ -74,12 +71,6 @@ public abstract class Product implements Serializable, Comparable<Product> {
         return stock;
     }
 
-    //add order to orders FIFO style
-    public void addOrder(Order order){
-        orders.addLast(order);
-
-    }
-
     public double calculateProductProfit(){
         return (sellPrice - buyPrice);
     }
@@ -90,9 +81,7 @@ public abstract class Product implements Serializable, Comparable<Product> {
 
     public double calculateTotalProductProfit(){
         double sum = 0;
-        for (Order order:orders){
-            sum += order.calculateOrderProfit();
-        }
+//        TODO after we implement order
         return sum;
     }
 

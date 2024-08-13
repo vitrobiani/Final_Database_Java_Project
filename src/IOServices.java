@@ -115,16 +115,16 @@ public class IOServices implements Services{
         ResultSet rs = null;
         String code = null;
         try {
-            rs =db.QueryDB("SELECT * FROM Products");
+            rs =db.QueryDB("SELECT * FROM " + TN.PRODUCT.tname());
 
             System.out.println("The Products: ");
             while (rs.next()){
-                System.out.println("Code: " + rs.getString("code") + "  Name: " + rs.getString("name") + "  Stock: " + rs.getString("stock"));
+                System.out.println("Code: " + rs.getString(TN.PRODUCT_CODE.tname()) + "  Name: " + rs.getString(TN.PRODUCT_NAME.tname()) + "  Stock: " + rs.getString(TN.PRODUCT_STOCK.tname()) + "  Type: " + rs.getString(TN.PRODUCT_TYPE.tname()));
             }
             System.out.println("Please enter the Product code: ");
             do {
                 code = s.nextLine();
-            }while (db.isProductInDB(code));
+            }while (db.getProduct(code) == null);
 
         } catch (PSQLException | ClassNotFoundException e){
             System.out.println(e.getMessage());

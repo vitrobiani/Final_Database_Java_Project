@@ -1,3 +1,7 @@
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Set;
+
 public class printAllProductsCommand extends MenuActionCompleteListener implements Command{
     DataBase db = DataBase.getInstance();
     @Override
@@ -5,7 +9,10 @@ public class printAllProductsCommand extends MenuActionCompleteListener implemen
         System.out.println("\nThe Products in the store: ");
         double sum = 0;
         int i = 1;
-        for (Product p : db.getProducts()){
+        Set<Product> pSet = db.getAllProducts();
+
+
+        for (Product p : pSet){
             System.out.println(i + ". " + p);
             i++;
             System.out.print("Profit From Product: " + p.calculateTotalProductProfit() + "\n\n");
