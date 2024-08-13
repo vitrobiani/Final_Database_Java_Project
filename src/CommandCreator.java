@@ -38,6 +38,9 @@ public class CommandCreator implements Creator<Command>{
             case PRINT_ALL_ORDERS: {
                 return new printAllOrdersCommand();
             }
+            case DROP_ALL_TABLES:{
+                return new dropAllTablesCommand();
+            }
             default:{
                 System.out.println("Exiting System...");
             }

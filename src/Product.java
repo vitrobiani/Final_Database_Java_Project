@@ -1,6 +1,7 @@
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.Stack;
 
 public abstract class Product implements Serializable, Comparable<Product> {
@@ -81,16 +82,21 @@ public abstract class Product implements Serializable, Comparable<Product> {
 
     public double calculateTotalProductProfit(){
         double sum = 0;
-//        TODO after we implement order
+        Set<Order> orders = db.getAllProductsOrders(code);
+        for (Order o : orders){
+            sum += o.calculateOrderProfit();
+        }
         return sum;
     }
 
     public String toString(){
+        Set<Order> orders = db.getAllProductsOrders(code);
         return "code: " + code + ", name: " + name + "\nbuy price: " + buyPrice + " ,sell price: " + sellPrice + "\nweight: " + weight + ", stock: " + stock
                 + "\nCurrent Orders placed: " + orders.size();
     }
 
     public String toStringAllOrders(){
+        Set<Order> orders = db.getAllProductsOrders(code);
         StringBuilder sb = new StringBuilder();
         sb.append("Product Orders: \n");
         for (Order o: orders){

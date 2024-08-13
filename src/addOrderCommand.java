@@ -25,18 +25,34 @@ public class addOrderCommand extends MenuActionCompleteListener implements Comma
         Customer customer = initCustomer();
         set.addPair("Customer", customer);
 
+        ShippingType st = null;
         if (product.getClass().equals(ProductSoldThroughWebsite.class)){
-            set.addPair("ShippingType", chooseShippingType((ProductSoldThroughWebsite) product));
+            if (!db.isThereAShippingCompany()){
+                update("No Shipping Companies");
+                return false;
+            }
+            st = chooseShippingType((ProductSoldThroughWebsite) product);
+            set.addPair("ShippingType", st);
         }
 
-        creator.create(set);
-        db.addOrder(customer, quantity, product);
+        String ShippingCompany = null;
+        String ShippingType = null;
+        Order o = creator.create(set);
+        if (st != null){
+            ShippingCompany = "'" + ((OrderThroughWebsite) o).company.toString() + "'";
+            ShippingType = ((OrderThroughWebsite)o).shippingType.sqlToString();
+        }
 
-        if (product.getClass().equals(ProductSoldInStore.class)){
+        db.addOrder(customer, quantity, product, ShippingType, ShippingCompany);
+
+        if (!product.getClass().equals(ProductSoldThroughWebsite.class)){
+            int orderid = db.getLastOrderID();
+            db.addInvoice(orderid);
             char inv = srv.getInput((Character c) -> c != 'y' && c != 'n', "Would you like to print the Invoice: <y/n>");
             if(inv == 'y'){
-                int len = ((ProductSoldInStore) product).getInvoices().size();
-                String s = ((ProductSoldInStore) product).invoiceToStringForCustomer(len-1);
+                Invoice i = new Invoice(db.getOrder(orderid));
+                String s = i.invoiceFormatForCustomer();
+                if (product.getClass().equals(ProductSoldToWholesalers.class)) s = i.invoiceFormatForAccountant();
                 System.out.println(s);
             }
         }

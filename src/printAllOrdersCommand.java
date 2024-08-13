@@ -1,14 +1,22 @@
+import java.util.Set;
+
 public class printAllOrdersCommand extends MenuActionCompleteListener implements Command{
     public static Services srv = IOServices.getInstance();
    DataBase db = DataBase.getInstance();
     @Override
     public boolean execute() {
-        Product product = srv.getProduct();
+        Product product = db.getProduct(srv.getProductCode());
         if (product == null){
             update("Product Not Found");
             return false;
         }
-        System.out.println(product.toStringAllOrders() + "\n");
+        Set<Order> orders = db.getAllProductsOrders(product.getCode());
+        StringBuilder sb = new StringBuilder();
+        sb.append("Product Orders: \n");
+        for (Order o: orders){
+            sb.append(o.orderDetails()).append("\n");
+        }
+        System.out.println(sb.toString());
         return true;
     }
 }

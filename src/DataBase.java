@@ -5,7 +5,8 @@ import java.util.*;
 import org.postgresql.util.PSQLException;
 
 public class DataBase implements Serializable {
-    String[] passwards = {"123123", "1234"};
+    String[] passwords = {"123123", "1234"};
+    public static Statement stmt = null;
     private static DataBase[] _instance = new DataBase[1];
     public TreeSet<Product> products;
     public PairSet countries;
@@ -59,7 +60,7 @@ public class DataBase implements Serializable {
     }
 
     public boolean checkProductCode(String code){
-        if (code.length() >= 4){
+        if (code.length() > 4){
             System.out.println("code must be 4 characters max");
             return false;
         }
@@ -111,11 +112,10 @@ public class DataBase implements Serializable {
     public ResultSet QueryDB(String query)  throws ClassNotFoundException, SQLException {
         Class.forName("org.postgresql.Driver");
         Connection conecto = null;
-        Statement stmt = null;
         ResultSet rs = null;
 
-        for (int i = 0; i < passwards.length; i++) {
-            String password = passwards[i];
+        for (int i = 0; i < passwords.length; i++) {
+            String password = passwords[i];
             try {
                 String dbURL = "jdbc:postgresql://localhost:5432/DDOFinalProject";
                 conecto = DriverManager.getConnection(dbURL, "postgres", password);
@@ -138,17 +138,17 @@ public class DataBase implements Serializable {
     public int UpdateDB(String query)  throws ClassNotFoundException, SQLException {
         Class.forName("org.postgresql.Driver");
         Connection conecto = null;
-        Statement stmt = null;
         int rs = 0;
-        for (int i = 0; i < passwards.length; i++) {
-            String passward = passwards[i];
+        for (int i = 0; i < passwords.length; i++) {
+            String password = passwords[i];
             try {
                 String dbURL = "jdbc:postgresql://localhost:5432/DDOFinalProject";
-                conecto = DriverManager.getConnection(dbURL, "postgres", passward);
+                conecto = DriverManager.getConnection(dbURL, "postgres", password);
 
                 assert conecto != null;
                 stmt = conecto.createStatement();
                 rs = stmt.executeUpdate(query);
+                ResultSet rsn = stmt.getGeneratedKeys();
             } catch (PSQLException esql) {
                 sqlExceptionMachine(esql);
             } catch (Exception e){
@@ -304,6 +304,18 @@ public class DataBase implements Serializable {
         return set;
     }
 
+    public boolean isThereAShippingCompany(){
+        try{
+            ResultSet rs = QueryDB("SELECT * FROM " + TN.SHIPPING_COMPANY.tname());
+            int i = 0;
+            while (rs.next()) i++;
+            if (i > 0) return true;
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+
     public ArrayList<Pair> customersTable(){
         ArrayList<Pair> customers = new ArrayList<>();
         customers.add(new Pair(TN.CUSTOMER_PHONE.tname(), TN.CUSTOMER_PHONE.type()));
@@ -393,7 +405,7 @@ public class DataBase implements Serializable {
 
     public Product getProduct(String code){
         Product p = null;
-        if (code.length() >= 4) return null;
+        if (code.length() > 4) return null;
         ResultSet rs = null;
         try {
             rs = QueryDB("SELECT * FROM " + TN.PRODUCT.tname());
@@ -482,23 +494,122 @@ public class DataBase implements Serializable {
         return addToTable(TN.ORDER.tname(), orders);
     }
 
+    public boolean addOrder(Order order){
+        ArrayList<Pair> orders = new ArrayList<>();
+        orders.add(new Pair(TN.ORDER_CUSTOMER.tname(), order.customer.getPhoneNumber()));
+        orders.add(new Pair(TN.ORDER_QUANTITY.tname(), order.quantity));
+        orders.add(new Pair(TN.ORDER_PRODUCT.tname(), "'"+order.product.code+"'"));
+        if (order.getClass().equals(OrderThroughWebsite.class)) {
+            OrderThroughWebsite ord = (OrderThroughWebsite) order;
+            orders.add(new Pair(TN.ORDER_SHIPPING_TYPE.tname(), ord.shippingType.sqlOpt));
+            orders.add(new Pair(TN.ORDER_SHIPPING_COMPANY.tname(), "'"+ord.setShippingCompany().toString()+"'"));
+        }else {
+            orders.add(new Pair(TN.ORDER_SHIPPING_TYPE.tname(), null));
+            orders.add(new Pair(TN.ORDER_SHIPPING_COMPANY.tname(), null));
+        }
+        updateProductStock(order.product.code, order.product.stock);
+        return addToTable(TN.ORDER.tname(), orders);
+    }
+
     public boolean removeOrder(int id){
         return removeFromTable(TN.ORDER.tname(), TN.ORDER_ID.tname(), id);
     }
 
-    public Order makeRSOrder(ResultSet rs){
-        Order order = null;
-//        TODO
+    public void printOrders(){
+        try{
+            ResultSet rs = QueryDB("SELECT * FROM " + TN.ORDER.tname());
+            while (rs.next()){
+                StringBuilder sb = new StringBuilder();
+                sb.append("Order ID: " + rs.getInt(TN.ORDER_ID.tname()) + "  Customer's phone number: " +
+                        rs.getString(TN.ORDER_CUSTOMER.tname()) + "\nQuantity: " + rs.getString(TN.ORDER_QUANTITY.tname()) +
+                        "  Product's code: " + rs.getString(TN.ORDER_PRODUCT.tname()) + "\n");
+                if (rs.getString(TN.ORDER_SHIPPING_TYPE.tname()) != null){
+                    sb.append("Shipping Type: " + rs.getString(TN.ORDER_SHIPPING_TYPE.tname()) +
+                            "  Shipping Company: " + rs.getString(TN.ORDER_SHIPPING_COMPANY.tname())+"\n");
+                }
+                System.out.println(sb.toString());
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
+    public int getLastOrderID(){
+        int id = -1;
+        try {
+            ResultSet rs = QueryDB("SELECT MAX("+TN.ORDER_ID.tname()+") AS max_id FROM " + TN.ORDER.tname());
+            rs.next();
+            id = rs.getInt("max_id");
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+        return id;
+    }
+
+    public Order getOrder(int id){
+        Order order = null;
+        try{
+            ResultSet rs = QueryDB("SELECT * FROM ("+ TN.ORDER.tname() + " JOIN "+ TN.PRODUCT.tname() +" ON (" + TN.ORDER_PRODUCT.tname() + " = " + TN.PRODUCT_CODE.tname() + ")) JOIN "+ TN.CUSTOMER.tname() +" ON "+ TN.CUSTOMER_PHONE.tname() + " = " + TN.ORDER_CUSTOMER.tname() +";");
+            while (rs.next()){
+                if (rs.getInt(TN.ORDER_ID.tname()) == id){
+                    PairSet set = new PairSet();
+                    Product p = makeRSProduct(rs);
+                    set.addPair("Product", p);
+                    set.addPair("Customer", makeRSCustomer(rs));
+                    set.addPair("Quantity", rs.getInt(TN.ORDER_QUANTITY.tname()));
+                    set.addPair("ProductClass", p.getClass().getSimpleName());
+                    Creator<Order> orderCreator = new OrderCreator();
+                    order = orderCreator.create(set);
+                }
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
         return order;
     }
 
-    public Map<Order, Product> getAllOrders(){
-        Map<Order, Product> orders = new HashMap<>();
-        try{ ResultSet rs = QueryDB("SELECT * FROM ("+ TN.ORDER.tname() + "JOIN "+ TN.PRODUCT.tname() +" ON (" + TN.ORDER_PRODUCT.tname() + " = " + TN.PRODUCT_CODE + ");");
+    public Set<Order> getAllOrdersProducts(){
+        Set<Order> orders = new HashSet<>();
+        try{
+            ResultSet rs = QueryDB("SELECT * FROM ("+ TN.ORDER.tname() + " JOIN "+ TN.PRODUCT.tname() +" ON (" + TN.ORDER_PRODUCT.tname() + " = " + TN.PRODUCT_CODE.tname() + ")) JOIN "+ TN.CUSTOMER.tname() +" ON "+ TN.CUSTOMER_PHONE.tname() + " = " + TN.ORDER_CUSTOMER.tname() +";");
             while (rs.next()){
-//                TODO
+                Customer c = makeRSCustomer(rs);
+                Product p = makeRSProduct(rs);
+                PairSet set = new PairSet();
+                set.addPair("Product", p);
+                set.addPair("Customer", c);
+                set.addPair("Quantity", rs.getInt(TN.ORDER_QUANTITY.tname()));
+                set.addPair("ProductClass", p.getClass().getSimpleName());
+                Creator<Order> orderCreator = new OrderCreator();
+                orders.add(orderCreator.create(set));
+            }
 
+        } catch (SQLException | ClassNotFoundException  e) {
+            System.out.println(e.getMessage());
+        }
+        return orders;
+    }
+
+    public Set<Order> getAllProductsOrders(String pCode){
+        Set<Order> orders = new HashSet<>();
+        try{
+            ResultSet rs = QueryDB("SELECT * FROM ("+ TN.ORDER.tname() + " JOIN "+ TN.PRODUCT.tname() +" ON (" + TN.ORDER_PRODUCT.tname() + " = " + TN.PRODUCT_CODE.tname() + ")) JOIN "+ TN.CUSTOMER.tname() +" ON "+ TN.CUSTOMER_PHONE.tname() + " = " + TN.ORDER_CUSTOMER.tname() +"" +
+                    "\nWHERE "+ TN.ORDER_PRODUCT.tname() +" LIKE '"+ pCode + "';");
+            while (rs.next()){
+                Customer c = makeRSCustomer(rs);
+                Product p = makeRSProduct(rs);
+                PairSet set = new PairSet();
+                set.addPair("Product", p);
+                set.addPair("Customer", c);
+                set.addPair("Quantity", rs.getInt(TN.ORDER_QUANTITY.tname()));
+                set.addPair("ProductClass", p.getClass().getSimpleName());
+                if (rs.getString(TN.ORDER_SHIPPING_TYPE.tname()) != null && rs.getString(TN.ORDER_SHIPPING_TYPE.tname()).equals("standard"))
+                    set.addPair("ShippingType", ShippingType.STANDARD);
+                else if (rs.getString(TN.ORDER_SHIPPING_TYPE.tname()) != null && rs.getString(TN.ORDER_SHIPPING_TYPE.tname()).equals("express"))
+                    set.addPair("ShippingType", ShippingType.EXPRESS);
+
+                Creator<Order> orderCreator = new OrderCreator();
+                orders.add(orderCreator.create(set));
             }
 
         } catch (SQLException | ClassNotFoundException  e) {
@@ -516,7 +627,7 @@ public class DataBase implements Serializable {
         return invoices;
     }
 
-    public boolean addInvoice(String OrderID){
+    public boolean addInvoice(int OrderID){
         ArrayList<Pair> invoices = new ArrayList<>();
         invoices.add(new Pair(TN.INVOICE_ORDER.tname(), OrderID));
         invoices.add(new Pair(TN.INVOICE_DATE.tname(), "CURRENT_TIMESTAMP"));

@@ -26,4 +26,8 @@ public class ShippingCompany {
     public String getContactPhone(){
         return contact.getPhoneNumber();
     }
+
+    public String toString(){
+        return Name;
+    }
 }

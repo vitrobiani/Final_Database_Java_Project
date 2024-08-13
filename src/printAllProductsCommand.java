@@ -11,12 +11,12 @@ public class printAllProductsCommand extends MenuActionCompleteListener implemen
         int i = 1;
         Set<Product> pSet = db.getAllProducts();
 
-
         for (Product p : pSet){
             System.out.println(i + ". " + p);
             i++;
-            System.out.print("Profit From Product: " + p.calculateTotalProductProfit() + "\n\n");
-            sum += p.calculateTotalProductProfit();
+            double k = p.calculateTotalProductProfit();
+            System.out.print("Profit From Product: " + k + "\n\n");
+            sum += k;
         }
         System.out.println("Total Profit From Products: " + sum );
         update("Finished Printing");

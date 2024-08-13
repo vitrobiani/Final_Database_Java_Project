@@ -10,6 +10,7 @@ public enum menuOptions {
     PRINT_PRODUCT_DETAILS("print Product details"),
     PRINT_ALL_PRODUCTS("print all products and store profit"),
     PRINT_ALL_ORDERS("print all orders of a product and the profit"),
+    DROP_ALL_TABLES("drop all the database tables"),
     EXIT_PROGRAM("Exit");
 
     private String option;
