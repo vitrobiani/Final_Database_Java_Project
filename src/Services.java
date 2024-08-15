@@ -14,4 +14,10 @@ public interface Services {
     public String getProductCode();
 
     public Product getProduct();
+
+    public boolean isAlpha(String str);
+
+    public boolean isNumeric(String str);
+
+    public boolean isAlphaNumeric(String str);
 }

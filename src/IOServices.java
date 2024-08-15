@@ -12,15 +12,18 @@ public class IOServices implements Services{
     public static IOServices[] _instance1 = new IOServices[1];
     public static Scanner s = new Scanner(System.in);
     public DataBase db;
+
     private IOServices(){
         db = DataBase.getInstance();
     }
+
     public static IOServices getInstance() {
         if (_instance1[0] == null) {
             _instance1[0] = new IOServices();
         }
         return _instance1[0];
     }
+
     public boolean isInteger(String str){
         try {
             Integer.parseInt(str);
@@ -29,6 +32,7 @@ public class IOServices implements Services{
             return false;
         }
     }
+
     public <T> T getInput(Predicate<T> condition, String mesg) {
         T choice = null;
 
@@ -63,7 +67,6 @@ public class IOServices implements Services{
         s.nextLine();
         return choice;
     }
-
 
     public Country getCountry(){
         for (Country c: db.getAllCountries()){
@@ -126,5 +129,33 @@ public class IOServices implements Services{
             throw new RuntimeException(e);
         }
         return code;
+    }
+
+    public boolean isAlpha(String str){
+        int len = str.length();
+        int i = 0;
+        while (i < len){
+            if (!Character.isLetter(str.charAt(i))) {
+                return false;
+            }
+            i++;
+        }
+        return true;
+    }
+
+    public boolean isNumeric(String str) {
+        int len = str.length();
+        int i = 0;
+        while (i < len){
+            if (!Character.isDigit(str.charAt(i))) {
+                return false;
+            }
+            i++;
+        }
+        return true;
+    }
+
+    public boolean isAlphaNumeric(String str) {
+        return isNumeric(str) && isAlpha(str);
     }
 }
