@@ -55,7 +55,7 @@ public enum TN {
         return type;
     }
     protected enum t{
-        STR("varchar(50)"), INT("integer"), FL("float"), SER("serial"), time("timestamp");
+        STR("varchar(150)"), INT("integer"), FL("float"), SER("serial"), time("timestamp");
         public final String n;
         t(String n){
             this.n = n;

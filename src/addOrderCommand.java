@@ -26,7 +26,8 @@ public class addOrderCommand extends MenuActionCompleteListener implements Comma
         set.addPair("Customer", customer);
 
         ShippingType st = null;
-        if (product.getClass().equals(ProductSoldThroughWebsite.class)){
+        boolean websiteornot = product.getClass().equals(ProductSoldThroughWebsite.class);
+        if (websiteornot){
             if (!db.isThereAShippingCompany()){
                 update("No Shipping Companies");
                 return false;
@@ -45,16 +46,14 @@ public class addOrderCommand extends MenuActionCompleteListener implements Comma
 
         db.addOrder(customer, quantity, product, ShippingType, ShippingCompany);
 
-        if (!product.getClass().equals(ProductSoldThroughWebsite.class)){
-            int orderid = db.getLastOrderID();
-            db.addInvoice(orderid);
-            char inv = srv.getInput((Character c) -> c != 'y' && c != 'n', "Would you like to print the Invoice: <y/n>");
-            if(inv == 'y'){
-                Invoice i = new Invoice(db.getOrder(orderid));
-                String s = i.invoiceFormatForCustomer();
-                if (product.getClass().equals(ProductSoldToWholesalers.class)) s = i.invoiceFormatForAccountant();
-                System.out.println(s);
-            }
+        int orderid = db.getLastOrderID();
+        db.addInvoice(orderid);
+        char inv = srv.getInput((Character c) -> c != 'y' && c != 'n', "Would you like to print the Invoice: <y/n>");
+        if(inv == 'y'){
+            Invoice i = new Invoice(db.getOrder(orderid));
+            String s = i.invoiceFormatForCustomer();
+            if (product.getClass().equals(ProductSoldToWholesalers.class)) s = i.invoiceFormatForAccountant();
+            System.out.println(s);
         }
 
         return true;

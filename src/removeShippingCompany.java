@@ -30,9 +30,9 @@ public class removeShippingCompany extends MenuActionCompleteListener implements
         ResultSet rs = null;
         System.out.println("The Shipping Companies: ");
         try {
-            rs = db.QueryDB("SELECT * FROM ShippingCompanies");
+            rs = db.QueryDB("SELECT * FROM " + TN.SHIPPING_COMPANY.tname());
             while (rs.next()) {
-                System.out.println((rs != null) ? rs.getString("name") : "error");
+                System.out.println((rs != null) ? rs.getString(TN.SHIPPING_COMPANY_NAME.tname()) : "error");
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());

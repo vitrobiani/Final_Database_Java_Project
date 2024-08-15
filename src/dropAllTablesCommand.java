@@ -19,10 +19,10 @@ public class dropAllTablesCommand extends MenuActionCompleteListener implements 
                     "$$;");
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println(e.getMessage());
-            update("not droped");
+            update("not dropped");
             return false;
         }
-        update("DROPED!");
+        update("DROPPED!");
         return true;
     }
 }

@@ -39,17 +39,17 @@ public class addProductCommand extends MenuActionCompleteListener implements Com
             } else {
                 TheShippingType = "'both'";
             }
-            TheSrcCountry = "'" + srcCountry + "'";
+            TheSrcCountry = "'" + srcCountry.getCountryCode() + "'";
         }
         set.addPair("stock", 0);
 
         Creator c = new ProductCreator();
         Product p = (Product) c.create(set);
-//        db.addProductToDB(p);
-        if (db.addProduct( "'" + p.code +"'", "'" + p.name + "'", p.buyPrice, p.sellPrice, p.weight, 0 ,"'" + TheProductType.toString() + "'", TheShippingType, TheSrcCountry)){
+        if (db.addProduct( "'" + p.code +"'", "'" + p.name + "'", p.buyPrice, p.sellPrice, p.weight, 0 ,"'" + TheProductType.toString() + "'", TheSrcCountry, TheShippingType)){
             update("Product added successfully!");
             return true;
         }
+        update("An error occurred in adding product");
         return false;
     }
 

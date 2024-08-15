@@ -146,7 +146,6 @@ public class DataBase implements Serializable {
                 String dbURL = "jdbc:postgresql://localhost:5432/DDOFinalProject";
                 conecto = DriverManager.getConnection(dbURL, "postgres", password);
 
-                assert conecto != null;
                 stmt = conecto.createStatement();
                 rs = stmt.executeUpdate(query);
                 ResultSet rsn = stmt.getGeneratedKeys();
@@ -177,6 +176,9 @@ public class DataBase implements Serializable {
                 }case "42703":{
                     System.out.println(esql.getMessage());
                     break;
+//                } case "23503": {
+//                    System.out.println("Object you are to remove still has uses in the system, please remove them first!");
+//                    break;
                 }default:
                     // Optionally log other errors or rethrow
                     System.err.println("Unhandled SQL State: " + sqlState + " Error: " + esql.getMessage());
@@ -196,7 +198,6 @@ public class DataBase implements Serializable {
         }
         query.append(");");
         String q = query.toString();
-
         try {
             UpdateDB(q);
         }catch (ClassNotFoundException | SQLException e){
@@ -482,7 +483,6 @@ public class DataBase implements Serializable {
         set.addPair("sellPrice",Double.parseDouble(rs.getString(TN.PRODUCT_SELL_PRICE.tname())));
         set.addPair("weight", Integer.parseInt(rs.getString(TN.PRODUCT_WEIGHT.tname())));
         set.addPair("stock", Integer.parseInt(rs.getString(TN.PRODUCT_STOCK.tname())));
-        set.addPair("srcCountry",rs.getString(TN.PRODUCT_COUNTRY.tname()));
         if (rs.getString(TN.PRODUCT_SHIPPING_TYPE.tname()) != null) {
             ShippingType st;
             if (rs.getString(TN.PRODUCT_SHIPPING_TYPE.tname()).equals("Standard")) {
@@ -506,7 +506,7 @@ public class DataBase implements Serializable {
             set.addPair("ProductType", pt);
         }
         if (rs.getString(TN.PRODUCT_COUNTRY.tname()) != null){
-            set.addPair("Country", makeRSCountry(rs));
+            set.addPair("srcCountry", makeRSCountry(rs));
         }
         Creator<Product> creator = new ProductCreator();
 
@@ -568,6 +568,7 @@ public class DataBase implements Serializable {
     }
 
     public boolean removeOrder(int id){
+        removeInvoice(id);
         return removeFromTable(TN.ORDER.tname(), TN.ORDER_ID.tname(), id);
     }
 
