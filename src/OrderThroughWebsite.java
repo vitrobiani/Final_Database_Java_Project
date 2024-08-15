@@ -4,6 +4,7 @@ public class OrderThroughWebsite extends Order{
     DataBase db = DataBase.getInstance();
     ShippingType shippingType;
     ShippingCompany company;
+
     public OrderThroughWebsite(Customer customer, int quantity, Product product, ShippingType shippingType) {
         super(customer, quantity, product);
         this.shippingType = shippingType;
@@ -17,7 +18,7 @@ public class OrderThroughWebsite extends Order{
             case EXPRESS: {
                 return bestExpressShipping(set);
             }
-            case STANDARD:{
+            case STANDARD: {
                 return bestStandardShipping(set);
             }
         }

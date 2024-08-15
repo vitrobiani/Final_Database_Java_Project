@@ -9,7 +9,7 @@ public enum TN {
     COUNTRY("countries", t.STR.n),
     COUNTRY_CODE("countrycode", t.STR.nn()),
     COUNTRY_NAME("countryname", t.STR.nn()),
-    COUNTRY_TAX("COUNTRY_TAX", t.FL.nn()),
+    COUNTRY_TAX("countrytax", t.FL.nn()),
 
     CUSTOMER("customers", t.STR.nn()),
     CUSTOMER_NAME("customername", t.STR.nn()),

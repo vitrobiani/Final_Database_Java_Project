@@ -6,7 +6,6 @@ import org.postgresql.util.PSQLException;
 
 public class DataBase implements Serializable {
     String[] passwords = {"123123", "1234"};
-    public static Statement stmt = null;
     private static DataBase[] _instance = new DataBase[1];
     public TreeSet<Product> products;
     public PairSet countries;
@@ -122,7 +121,7 @@ public class DataBase implements Serializable {
                 conecto = DriverManager.getConnection(dbURL, "postgres", password);
 
                 assert conecto != null;
-                stmt = conecto.createStatement();
+                Statement stmt = conecto.createStatement();
                 rs = stmt.executeQuery(query);
             } catch (PSQLException esql) {
                 sqlExceptionMachine(esql);
@@ -146,8 +145,8 @@ public class DataBase implements Serializable {
                 String dbURL = "jdbc:postgresql://localhost:5432/DDOFinalProject";
                 conecto = DriverManager.getConnection(dbURL, "postgres", password);
 
-                stmt = conecto.createStatement();
-                rs = stmt.executeUpdate(query);
+                PreparedStatement stmt = conecto.prepareStatement(query);
+                rs = stmt.executeUpdate();
                 ResultSet rsn = stmt.getGeneratedKeys();
             } catch (PSQLException esql) {
                 sqlExceptionMachine(esql);

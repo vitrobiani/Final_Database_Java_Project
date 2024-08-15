@@ -4,10 +4,9 @@ public class ProductSoldThroughWebsite extends Product {
     ShippingType type;
 
     public ProductSoldThroughWebsite(String code, String name, double buyPrice, double sellPrice, int weight, int stock, Country sourceCountry, ShippingType type) {
-        super(code, name, buyPrice, sellPrice, weight, stock);
+        super(code, name, buyPrice*sourceCountry.getTax(), sellPrice* sourceCountry.tax, weight, stock);
         this.sourceCountry = sourceCountry;
         this.type = type;
-
     }
 
     public Country getSourceCountry() {
@@ -17,7 +16,6 @@ public class ProductSoldThroughWebsite extends Product {
     public ShippingType getType(){
         return type;
     }
-
 
     public String toString(){
         return "Where it sells: Website " + "\nDestination Country: " + sourceCountry + " , Shipping Types Available: " +
