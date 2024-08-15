@@ -196,7 +196,7 @@ public class DataBase implements Serializable {
         }
         query.append(");");
         String q = query.toString();
-        System.out.println(q);
+
         try {
             UpdateDB(q);
         }catch (ClassNotFoundException | SQLException e){

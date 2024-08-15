@@ -46,7 +46,6 @@ public class autoAddProductCommand extends MenuActionCompleteListener implements
         for (int i = 0; i < codes.length; i++) {
             PairSet set = new PairSet();
             Product p = db.getProduct(codes[i]);
-            System.out.println(p.code);
             set.addPair("Product", p);
             set.addPair("ProductClass", p.getClass().getSimpleName());
             set.addPair("Quantity", i+1);
