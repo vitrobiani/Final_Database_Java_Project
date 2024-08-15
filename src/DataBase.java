@@ -165,7 +165,7 @@ public class DataBase implements Serializable {
         if (sqlState != null) {
             switch (sqlState) {
                 case "23505": { // Unique constraint violation
-                    System.out.println("Constraint Violation");
+                    System.out.println("Constraint Violation: Trying to insert object with existing key");
                     break;
                 }case "08001": { // SQLClient unable to establish SQLConnection
                     System.out.println("Connection Problems");
@@ -176,7 +176,7 @@ public class DataBase implements Serializable {
                     System.out.println(esql.getMessage());
                     break;
                 } case "23503": {
-                    System.out.println("Object you are to remove still has uses in the system, please remove them first!");
+                    System.out.println("The object you are to trying remove still has uses in the system, please remove them first!");
                     break;
                 }default:
                     // Optionally log other errors or rethrow
