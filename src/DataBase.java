@@ -176,9 +176,9 @@ public class DataBase implements Serializable {
                 }case "42703":{
                     System.out.println(esql.getMessage());
                     break;
-//                } case "23503": {
-//                    System.out.println("Object you are to remove still has uses in the system, please remove them first!");
-//                    break;
+                } case "23503": {
+                    System.out.println("Object you are to remove still has uses in the system, please remove them first!");
+                    break;
                 }default:
                     // Optionally log other errors or rethrow
                     System.err.println("Unhandled SQL State: " + sqlState + " Error: " + esql.getMessage());
