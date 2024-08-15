@@ -102,6 +102,7 @@ public class DataBase implements Serializable {
     }
 
     public void initDB() throws SQLException, ClassNotFoundException {
+        createTable(TN.COUNTRY.tname(), countriesTable());
         createTable(TN.SHIPPING_COMPANY.tname(), shippingCompaniesTable());
         createTable(TN.CUSTOMER.tname(), customersTable());
         createTable(TN.PRODUCT.tname(), productsTable());
@@ -195,6 +196,7 @@ public class DataBase implements Serializable {
         }
         query.append(");");
         String q = query.toString();
+        System.out.println(q);
         try {
             UpdateDB(q);
         }catch (ClassNotFoundException | SQLException e){
@@ -316,6 +318,56 @@ public class DataBase implements Serializable {
         return false;
     }
 
+    public ArrayList<Pair> countriesTable(){
+        ArrayList<Pair> countries = new ArrayList<>();
+        countries.add(new Pair(TN.COUNTRY_CODE.tname(), TN.COUNTRY_CODE.type()));
+        countries.add(new Pair(TN.COUNTRY_NAME.tname(), TN.COUNTRY_NAME.type()));
+        countries.add(new Pair(TN.COUNTRY_TAX.tname(), TN.COUNTRY_TAX.type()));
+        return countries;
+    }
+
+    public boolean addCountry(String code, String name, double tax){
+        ArrayList<Pair> country = new ArrayList<>();
+        country.add(new Pair(TN.COUNTRY_CODE.tname(), code));
+        country.add(new Pair(TN.COUNTRY_NAME.tname(), name ));
+        country.add(new Pair(TN.COUNTRY_TAX.tname(), tax));
+        return addToTable(TN.COUNTRY.tname(), country);
+    }
+
+    public Country makeRSCountry(ResultSet rs) throws SQLException {
+        String code = rs.getString(TN.COUNTRY_CODE.tname());
+        String name = rs.getString(TN.COUNTRY_NAME.tname());
+        double tax = rs.getDouble(TN.COUNTRY_TAX.tname());
+
+        return new Country(code, name, tax);
+    }
+
+    public Set<Country> getAllCountries(){
+        Set<Country> countries = new HashSet<>();
+        try{
+            ResultSet rs = QueryDB("SELECT * FROM " + TN.COUNTRY.tname());
+            while (rs.next()){
+                countries.add(makeRSCountry(rs));
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+        return countries;
+    }
+
+    public Country getCountry(String code){
+        Country c = null;
+        try{
+            ResultSet rs = QueryDB("SELECT * FROM " + TN.COUNTRY.tname() + " WHERE " + TN.COUNTRY_CODE.tname() + " LIKE '" + code + "'");
+            while (rs.next()){
+                c = makeRSCountry(rs);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+        return c;
+    }
+
     public ArrayList<Pair> customersTable(){
         ArrayList<Pair> customers = new ArrayList<>();
         customers.add(new Pair(TN.CUSTOMER_PHONE.tname(), TN.CUSTOMER_PHONE.type()));
@@ -368,6 +420,8 @@ public class DataBase implements Serializable {
         products.add(new Pair(TN.PRODUCT_COUNTRY.tname(), TN.PRODUCT_COUNTRY.type()));
         products.add(new Pair(TN.PRODUCT_SHIPPING_TYPE.tname(), TN.PRODUCT_SHIPPING_TYPE.type()));
         products.add(new Pair("CHECK ("+TN.PRODUCT_TYPE.tname()+" IN","('Website', 'Store', 'Wholesalers'))"));
+        products.add(new Pair("FOREIGN KEY ("+TN.PRODUCT_COUNTRY.tname()+")", "REFERENCES "+TN.COUNTRY.tname()+"("+TN.COUNTRY_CODE.tname()+")"));
+//        TODO
 //        products.add(new Pair("CHECK (ShippingType IN","('express', 'standard', 'both'))"));
 
         return products;
@@ -408,12 +462,11 @@ public class DataBase implements Serializable {
         if (code.length() > 4) return null;
         ResultSet rs = null;
         try {
-            rs = QueryDB("SELECT * FROM " + TN.PRODUCT.tname());
+            rs = QueryDB("SELECT * FROM " + TN.PRODUCT.tname() + " LEFT JOIN " + TN.COUNTRY.tname() + " ON (" +  TN.PRODUCT_COUNTRY.tname() + " = " + TN.COUNTRY_CODE.tname()+")" +
+                    "WHERE "+ TN.PRODUCT_CODE.tname() + " LIKE '" + code +"';");
             while (rs.next()){
-                if(rs.getString(TN.PRODUCT_CODE.tname()).equals(code)) {
-                    p = makeRSProduct(rs);
-                    return p;
-                }
+                p = makeRSProduct(rs);
+                return p;
             }
         } catch (ClassNotFoundException | SQLException e) {
             System.out.println(e.getMessage());
@@ -452,6 +505,9 @@ public class DataBase implements Serializable {
             }
             set.addPair("ProductType", pt);
         }
+        if (rs.getString(TN.PRODUCT_COUNTRY.tname()) != null){
+            set.addPair("Country", makeRSCountry(rs));
+        }
         Creator<Product> creator = new ProductCreator();
 
         return creator.create(set);
@@ -461,7 +517,7 @@ public class DataBase implements Serializable {
         Set<Product> productsSet = new HashSet<>();
         ResultSet rs = null;
         try {
-            rs = QueryDB("SELECT * FROM " + TN.PRODUCT.tname());
+            rs = QueryDB("SELECT * FROM " + TN.PRODUCT.tname() + " LEFT JOIN " + TN.COUNTRY.tname() + " ON (" + TN.COUNTRY_CODE.tname() + " = " + TN.PRODUCT_COUNTRY.tname() +");");
             while (rs.next()) productsSet.add(makeRSProduct(rs));
         } catch (ClassNotFoundException | SQLException esql){
             System.out.println(esql.getMessage());

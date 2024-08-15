@@ -1,16 +1,16 @@
 public class ProductSoldThroughWebsite extends Product {
     public static final double dollarRate = 4.0;
-    public String sourceCountry;
+    public Country sourceCountry;
     ShippingType type;
 
-    public ProductSoldThroughWebsite(String code, String name, double buyPrice, double sellPrice, int weight, int stock, String sourceCountry, ShippingType type) {
+    public ProductSoldThroughWebsite(String code, String name, double buyPrice, double sellPrice, int weight, int stock, Country sourceCountry, ShippingType type) {
         super(code, name, buyPrice, sellPrice, weight, stock);
         this.sourceCountry = sourceCountry;
         this.type = type;
 
     }
 
-    public String getSourceCountry() {
+    public Country getSourceCountry() {
         return sourceCountry;
     }
 

@@ -7,7 +7,7 @@ public interface Services {
 
     public <T> T getInput(Predicate<T> condition, String mesg);
 
-    public String getDestCountry();
+    public Country getCountry();
 
     public void printProductTypes();
 

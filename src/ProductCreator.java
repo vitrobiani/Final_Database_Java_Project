@@ -1,6 +1,7 @@
 
 public class ProductCreator implements Creator<Product>{
     ProductType type;
+    DataBase db = DataBase.getInstance();
     @Override
     public Product create(PairSet set) {
         type = (ProductType) set.get("ProductType");
@@ -12,7 +13,7 @@ public class ProductCreator implements Creator<Product>{
         int stock = (int) set.get("stock");
         switch (type) {
             case SOLD_THROUGH_WEBSITE:
-                return new ProductSoldThroughWebsite(code, name, buyPrice, sellPrice, weight, stock,(String) set.get("srcCountry"), (ShippingType) set.get("ShippingType"));
+                return new ProductSoldThroughWebsite(code, name, buyPrice, sellPrice, weight, stock,(Country) db.getCountry((String)set.get("srcCountry")), (ShippingType) set.get("ShippingType"));
             case SOLD_IN_STORE:
                 return new ProductSoldInStore(code, name, buyPrice, sellPrice, weight, stock);
             case SOLD_TO_WHOLESALERS:

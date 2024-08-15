@@ -6,6 +6,11 @@ public enum TN {
     REGULAR_SHIPPING_MULT("regularShippingMult", t.FL.nn()),
     EXPRESS_SHIPPING_MULT("expressshippingmult", t.FL.nn()),
 
+    COUNTRY("countries", t.STR.n),
+    COUNTRY_CODE("countrycode", t.STR.nn()),
+    COUNTRY_NAME("countryname", t.STR.nn()),
+    COUNTRY_TAX("COUNTRY_TAX", t.FL.nn()),
+
     CUSTOMER("customers", t.STR.nn()),
     CUSTOMER_NAME("customername", t.STR.nn()),
     CUSTOMER_PHONE("customerphone", t.STR.nn()),
@@ -18,7 +23,7 @@ public enum TN {
     PRODUCT_WEIGHT("productweight", t.FL.nn()),
     PRODUCT_STOCK("productstock", t.INT.nn()),
     PRODUCT_TYPE("producttype", t.STR.nn()),
-    PRODUCT_COUNTRY("sourcecountry", t.STR.n),
+    PRODUCT_COUNTRY("sourcecountrycode", t.STR.n),
     PRODUCT_SHIPPING_TYPE("shippingtype", t.STR.n),
 
     ORDER("orders", t.STR.n),

@@ -65,25 +65,19 @@ public class IOServices implements Services{
     }
 
 
-    public String getDestCountry(){
-        System.out.println("please enter the destination country");
-        System.out.println(db.getCountries().toString());
-
-//        System.out.println("would you like to add a new country? (y/n)");
-//        char choice = getInput((Character c) -> c != 'y' && c != 'n', "");
-//        if (choice == 'y') {
-//            String country = addCountryToList();
-//            return country;
-//        }else {
-            String country = s.nextLine();
-            if (db.getCountries().get(country) != null){
-                return country;
-            }else {
-                System.out.println("country not found");
-                return getDestCountry();
-            }
-//        }
+    public Country getCountry(){
+        for (Country c: db.getAllCountries()){
+            System.out.println(c.toString());
+        }
+        System.out.println("please enter the country code");
+        String code = s.nextLine();
+        if(db.getCountry(code) == null){
+            System.out.println("Country not found");
+            return getCountry();
+        }
+        return db.getCountry(code);
     }
+
     public String addCountryToList(){
         System.out.println("please enter the country name");
         String country = s.nextLine();

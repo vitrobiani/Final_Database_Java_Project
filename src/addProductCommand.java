@@ -10,7 +10,7 @@ public class addProductCommand extends MenuActionCompleteListener implements Com
         String TheShippingType = null;
         ShippingType shippingType = null;
         String TheSrcCountry = null;
-        String srcCountry = null;
+        Country srcCountry = null;
         PairSet set = new PairSet();
         try {
             TheProductType = getProductType();
@@ -24,7 +24,7 @@ public class addProductCommand extends MenuActionCompleteListener implements Com
             if (set.get("ProductType") == ProductType.SOLD_THROUGH_WEBSITE) {
                 shippingType = getShippingType();
                 set.addPair("ShippingType", shippingType);
-                srcCountry = srv.getDestCountry();
+                srcCountry = srv.getCountry();
                 set.addPair("srcCountry", srcCountry);
             }
         }catch (Exception e){
