@@ -16,50 +16,59 @@ public class autoAddProductCommand extends MenuActionCompleteListener implements
 
     @Override
     public boolean execute() {
-        db.addCountry("'USA'", "'US'", 1.2);
-        db.addCountry("'ISR'", "'Israel'", 1.17);
-        db.addCountry("'FRA'", "'France'", 1.2);
-        db.addCountry("'OML'", "'Omerland'", 0.5);
-        db.addCountry("'CND'", "'Canada'", 1.2);
-
-        db.addProduct("'HHH'", "'product10'", 100.0, 550.0, 10, 20, "'Store'", null, null);
-        db.addProduct("'III'", "'product11'", 110.0, 650.0, 11, 20, "'Store'", null, null);
-        db.addProduct("'JJJ'", "'product12'", 120.0, 750.0, 12, 20, "'Website'", "'USA'", "'standard'");
-        db.addProduct("'ABC'", "'product13'", 130.0, 890.0, 13, 20, "'Store'", null, null);
-        db.addProduct("'ABFF'", "'product14'", 1333.0, 8890.0, 52, 20, "'Website'", "'ISR'", "'both'");
-        db.addProduct("'FFAB'", "'product15'", 198.90, 890.0, 1, 20, "'Website'","'FRA'","'express'");
-        db.addProduct("'PPPP'", "'product19'", 69.90, 420, 8, 20, "'Website'","'OML'","'both'");
-        db.addProduct("'LSAG'", "'product16'", 18.0, 89.0, 3, 20, "'Wholesalers'",null,null);
-        db.addProduct("'KJH'", "'product17'", 1.0, 8.0, 1, 20, "'Wholesalers'", null,null );
-        db.addProduct("'LLL'", "'product18'", 2.5, 11.0, 1, 20, "'Wholesalers'", null,null );
-
-        db.addCustomer("'John'","'123456789'");
-        db.addCustomer("'Doe'","'987654321'");
-        db.addCustomer("'Jane'","'123123123'");
-
-        db.addShippingCompany("'UPS'", new Contact("'dolev'", "555666"), 1.5, 2.3);
-        db.addShippingCompany("'FedEx'", new Contact("'omer'", "555666"), 1.1, 2.4);
-        db.addShippingCompany("'DHL'", new Contact("'daniel'", "555666"), 1.1, 2.4);
-
-        Creator<Order> orderCreator = new OrderCreator();
-
-        for (int i = 0; i < codes.length; i++) {
-            PairSet set = new PairSet();
-            Product p = db.getProduct(codes[i]);
-            set.addPair("Product", p);
-            set.addPair("ProductClass", p.getClass().getSimpleName());
-            set.addPair("Quantity", i+1);
-            Customer c = db.getCustomer("123123123");
-            set.addPair("Customer", c);
-            if (i == 2 || i == 4)
-                set.addPair("ShippingType", ShippingType.STANDARD);
-            else if (i == 5)
-                set.addPair("ShippingType", ShippingType.EXPRESS);
-            db.addOrder(orderCreator.create(set));
-            db.addInvoice(i+1);
+        try {
+            db.initDB();
+        } catch (Exception e){
+            System.out.println(e.getMessage());
         }
+        if (db.getAllProducts().isEmpty()) {
+            db.addCountry("'USA'", "'US'", 1.2);
+            db.addCountry("'ISR'", "'Israel'", 1.17);
+            db.addCountry("'FRA'", "'France'", 1.2);
+            db.addCountry("'OML'", "'Omerland'", 0.5);
+            db.addCountry("'CND'", "'Canada'", 1.2);
 
-        update("Added!");
-        return true;
+            db.addProduct("'HHH'", "'product10'", 100.0, 550.0, 10, 20, "'Store'", null, null);
+            db.addProduct("'III'", "'product11'", 110.0, 650.0, 11, 20, "'Store'", null, null);
+            db.addProduct("'JJJ'", "'product12'", 120.0, 750.0, 12, 20, "'Website'", "'USA'", "'standard'");
+            db.addProduct("'ABC'", "'product13'", 130.0, 890.0, 13, 20, "'Store'", null, null);
+            db.addProduct("'ABFF'", "'product14'", 1333.0, 8890.0, 52, 20, "'Website'", "'ISR'", "'both'");
+            db.addProduct("'FFAB'", "'product15'", 198.90, 890.0, 1, 20, "'Website'", "'FRA'", "'express'");
+            db.addProduct("'PPPP'", "'product19'", 69.90, 420, 8, 20, "'Website'", "'OML'", "'both'");
+            db.addProduct("'LSAG'", "'product16'", 18.0, 89.0, 3, 20, "'Wholesalers'", null, null);
+            db.addProduct("'KJH'", "'product17'", 1.0, 8.0, 1, 20, "'Wholesalers'", null, null);
+            db.addProduct("'LLL'", "'product18'", 2.5, 11.0, 1, 20, "'Wholesalers'", null, null);
+
+            db.addCustomer("'John'", "'123456789'");
+            db.addCustomer("'Doe'", "'987654321'");
+            db.addCustomer("'Jane'", "'123123123'");
+
+            db.addShippingCompany("'UPS'", new Contact("'Dolev'", "555666"), 1.5, 2.3);
+            db.addShippingCompany("'FedEx'", new Contact("'Omer'", "555666"), 1.1, 2.4);
+            db.addShippingCompany("'DHL'", new Contact("'Daniel'", "555666"), 1.1, 2.4);
+
+            Creator<Order> orderCreator = new OrderCreator();
+
+            for (int i = 0; i < codes.length; i++) {
+                PairSet set = new PairSet();
+                Product p = db.getProduct(codes[i]);
+                set.addPair("Product", p);
+                set.addPair("ProductClass", p.getClass().getSimpleName());
+                set.addPair("Quantity", i + 1);
+                Customer c = db.getCustomer("123123123");
+                set.addPair("Customer", c);
+                if (i == 2 || i == 4)
+                    set.addPair("ShippingType", ShippingType.STANDARD);
+                else if (i == 5)
+                    set.addPair("ShippingType", ShippingType.EXPRESS);
+                db.addOrder(orderCreator.create(set));
+                db.addInvoice(i + 1);
+            }
+
+            update("Added!");
+            return true;
+        }
+        update("There are already products in the database");
+        return false;
     }
 }

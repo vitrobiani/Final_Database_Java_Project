@@ -11,6 +11,10 @@ public class addOrderCommand extends MenuActionCompleteListener implements Comma
         Creator<Order> creator = new OrderCreator();
 
         String pCode = srv.getProductCode();
+        if (pCode == null){
+            update("No products");
+            return false;
+        }
         Product product = db.getProduct(pCode);
         if (product == null || product.getStock() == 0){
             update("Product not found or none left in stock");

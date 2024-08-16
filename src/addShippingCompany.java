@@ -3,6 +3,7 @@ import java.util.*;
 public class addShippingCompany extends MenuActionCompleteListener implements Command{
     private Scanner s = new Scanner(System.in);
     private DataBase db = DataBase.getInstance();
+    private Services srv = IOServices.getInstance();
     @Override
     public boolean execute() {
         if (db.addShippingCompany(getName(), getContact(), getRegularShippingMult(),getExpressShippingMult())){
@@ -41,22 +42,30 @@ public class addShippingCompany extends MenuActionCompleteListener implements Co
     }
 
     private double getRegularShippingMult(){
-        System.out.println("please enter the regular shipping multiplier: ");
-        double mult = s.nextDouble();
-        if (mult < 0){
-            System.out.println("please enter a valid multiplier");
-            getRegularShippingMult();
-        }
+        System.out.println("please enter the the regular multiplier: ");
+        double mult = -1;
+        do {
+            try {
+                mult = s.nextDouble();
+            } catch (InputMismatchException e) {
+                System.out.println("Please enter a valid multiplier");
+                s.next();
+            }
+        }while(mult < 0);
         return mult;
     }
 
     private double getExpressShippingMult(){
         System.out.println("please enter the express shipping multiplier: ");
-        double mult = s.nextDouble();
-        if (mult < 0){
-            System.out.println("please enter a valid multiplier");
-            getRegularShippingMult();
-        }
+        double mult = -1;
+        do {
+            try {
+                mult = s.nextDouble();
+            } catch (InputMismatchException e) {
+                System.out.println("Please enter a valid multiplier");
+                s.next();
+            }
+        }while(mult < 0);
         return mult;
     }
 

@@ -8,10 +8,12 @@ public class Invoice implements Serializable {
     public final double MAAM = 0.17;
     public Order order;
     public LocalDateTime dateTime;
+    public double sumTotal;
 
     public Invoice(Order order){
         this.order = order;
         this.dateTime = LocalDateTime.now();
+        sumTotal = order.getProduct().getSellPrice()*order.quantity;
     }
 
     public double calculateProfit(){
@@ -23,12 +25,11 @@ public class Invoice implements Serializable {
         String rightNow = dateTime.format(timeFormat);
         StringBuilder invoice = new StringBuilder();
         int quantity = order.getQuantity();
-        double price = order.getProduct().getSellPrice()*quantity;
-        double tax = price*MAAM;
+        double tax = sumTotal*MAAM;
         invoice.append("time of sale: " + rightNow + "\n");
         invoice.append(order.orderDetailsForInvoice());
-        invoice.append("\nprice without tax:").append(price * (1-MAAM)).append("\n").append("total taxes: ").append(String.format("%.2f", tax));
-        invoice.append("\nTotal Price: " + price );
+        invoice.append("\nprice without tax:").append(sumTotal* (1-MAAM)).append("\n").append("total taxes: ").append(String.format("%.2f", tax));
+        invoice.append("\nTotal Price: " + sumTotal);
         return invoice.toString();
     }
 

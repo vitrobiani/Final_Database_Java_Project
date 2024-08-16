@@ -1,5 +1,5 @@
 public enum menuOptions {
-    AUTO_ADD_PRODUCT("add Products automatically (for testing)"),
+    AUTO_ADD_PRODUCT("add Products automatically (for testing, only when there are no products)"),
     ADD_PRODUCT("Add a new product"),
     REMOVE_PRODUCT("remove a product"),
     UPDATE_PRODUCT("update product inventory"),

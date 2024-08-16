@@ -1,3 +1,4 @@
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class addProductCommand extends MenuActionCompleteListener implements Command{
@@ -76,9 +77,17 @@ public class addProductCommand extends MenuActionCompleteListener implements Com
 
     private double getBuyPrice(){
         System.out.println("Enter the Product buy price:  ");
-        double buyPrice = 0;
+        double buyPrice = -1;
         do {
-            buyPrice = s.nextDouble();
+            try {
+                buyPrice = s.nextDouble();
+            }catch (InputMismatchException e){
+                System.out.println("please enter an floating point number");
+                s.next();
+            }catch (Exception e){
+                System.out.println("Error occurred");
+                s.next();
+            }
             if (buyPrice < 0)
                 System.out.println("buy price must be positive!");
         }while(buyPrice < 0);
@@ -87,9 +96,17 @@ public class addProductCommand extends MenuActionCompleteListener implements Com
 
     private double getSellPrice(){
         System.out.println("Enter the Product sell price:  ");
-        double sellPrice = 0;
+        double sellPrice = -1;
         do {
-            sellPrice = s.nextDouble();
+            try {
+                sellPrice = s.nextDouble();
+            }catch (InputMismatchException e){
+                System.out.println("please enter an floating point number");
+                s.next();
+            }catch (Exception e){
+                System.out.println("Error occurred");
+                s.next();
+            }
             if (sellPrice < 0)
                 System.out.println("buy price must be positive!");
         }while(sellPrice < 0);
@@ -97,14 +114,7 @@ public class addProductCommand extends MenuActionCompleteListener implements Com
     }
 
     private int getWeight(){
-        System.out.println("Enter the Product weight:  ");
-        int weight = 0;
-        do {
-            weight = s.nextInt();
-            if (weight < 0)
-                System.out.println("buy price must be positive!");
-        }while(weight < 0);
-        return weight;
+        return srv.getInput((Integer i) -> i < 0, "Enter the Product weight:  ");
     }
 
     public ShippingType getShippingType(){

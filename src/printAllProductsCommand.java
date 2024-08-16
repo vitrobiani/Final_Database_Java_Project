@@ -6,6 +6,10 @@ public class printAllProductsCommand extends MenuActionCompleteListener implemen
     DataBase db = DataBase.getInstance();
     @Override
     public boolean execute() {
+        if (db.getAllProducts().isEmpty()){
+            update("No products");
+            return false;
+        }
         System.out.println("\nThe Products in the store: ");
         double sum = 0;
         int i = 1;

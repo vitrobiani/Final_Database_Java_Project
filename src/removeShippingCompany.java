@@ -7,6 +7,10 @@ public class removeShippingCompany extends MenuActionCompleteListener implements
     private Scanner s = new Scanner(System.in);
     @Override
     public boolean execute() {
+        if (db.getAllShippingCompanies().isEmpty()){
+            update("No shipping Companies");
+            return false;
+        }
         printAllShippingCompanies();
         if (db.removeShippingCompany(getName())){
             update("Removed Successfully!");

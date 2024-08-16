@@ -10,7 +10,12 @@ public class updateProductCommand extends MenuActionCompleteListener implements 
     Services srv = IOServices.getInstance();
     @Override
     public boolean execute() {
-        if (db.updateProductStock(srv.getProductCode(), getNewStock())){
+        String code = srv.getProductCode();
+        if (code == null){
+            update("No Products");
+            return false;
+        }
+        if (db.updateProductStock(code, getNewStock())){
             update("Stock updated");
             return true;
         }

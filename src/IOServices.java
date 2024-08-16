@@ -33,6 +33,15 @@ public class IOServices implements Services{
         }
     }
 
+    public boolean isDouble(String str){
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     public <T> T getInput(Predicate<T> condition, String mesg) {
         T choice = null;
 
@@ -43,6 +52,8 @@ public class IOServices implements Services{
                 try {
                     if (condition != null && isInteger(input)) {
                         choice = (T) (Integer) Integer.parseInt(input);
+                    } else if (condition != null && isDouble(input)) {
+                        choice = (T) (Double) Double.parseDouble(input);
                     } else if (condition != null) {
                         if (input.length() == 1) {
                             choice = (T) (Character) input.charAt(0);
@@ -111,8 +122,10 @@ public class IOServices implements Services{
     public String getProductCode(){
         ResultSet rs = null;
         String code = null;
+        Product p = null;
         try {
             rs =db.QueryDB("SELECT * FROM " + TN.PRODUCT.tname());
+            if (db.getAllProducts().isEmpty())return null;
 
             System.out.println("The Products: ");
             while (rs.next()){
@@ -121,12 +134,12 @@ public class IOServices implements Services{
             System.out.println("Please enter the Product code: ");
             do {
                 code = s.nextLine();
-            }while (db.getProduct(code) == null);
+                p = db.getProduct(code);
+                if (p == null) System.out.println("No such Product, try again");
+            }while (p == null);
 
-        } catch (PSQLException | ClassNotFoundException e){
+        } catch (ClassNotFoundException | SQLException e){
             System.out.println(e.getMessage());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
         return code;
     }

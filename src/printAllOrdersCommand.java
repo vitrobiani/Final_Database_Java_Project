@@ -5,7 +5,12 @@ public class printAllOrdersCommand extends MenuActionCompleteListener implements
    DataBase db = DataBase.getInstance();
     @Override
     public boolean execute() {
-        Product product = db.getProduct(srv.getProductCode());
+        String code = srv.getProductCode();
+        if (code == null){
+            update("No Products");
+            return false;
+        }
+        Product product = db.getProduct(code);
         if (product == null){
             update("Product Not Found");
             return false;

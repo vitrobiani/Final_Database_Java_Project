@@ -10,11 +10,18 @@ public class removeProductCommand extends MenuActionCompleteListener implements 
     public static DataBase db = DataBase.getInstance();
     Services srv = IOServices.getInstance();
     @Override
+
     public boolean execute() {
-        if (db.removeProduct(srv.getProductCode())){
+        String code = srv.getProductCode();
+        if(code == null){
+            update("No products");
+            return false;
+        }
+        if (db.removeProduct(code)){
             update("Product Removed Successfully");
         }else {
-            update("Product not found");
+            update("Product not found or no Products");
+            return false;
         }
         return true;
     }

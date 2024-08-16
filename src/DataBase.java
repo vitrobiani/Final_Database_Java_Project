@@ -73,8 +73,9 @@ public class DataBase implements Serializable {
                 return false;
             }
         }
-        for (Product p: products){
-            if (p.getCode().equals(code)) return false;
+        if (getProduct(code) != null){
+            System.out.println("Product with this code already exists");
+            return false;
         }
         return true;
     }
@@ -602,20 +603,33 @@ public class DataBase implements Serializable {
         return id;
     }
 
+    public Order makeRSOrder(ResultSet rs) throws SQLException {
+        Customer c = makeRSCustomer(rs);
+        Product p = makeRSProduct(rs);
+        PairSet set = new PairSet();
+        set.addPair("Product", p);
+        set.addPair("Customer", c);
+        set.addPair("Quantity", rs.getInt(TN.ORDER_QUANTITY.tname()));
+        set.addPair("ProductClass", p.getClass().getSimpleName());
+        if (rs.getString(TN.ORDER_SHIPPING_TYPE.tname()) != null && rs.getString(TN.ORDER_SHIPPING_TYPE.tname()).equals("standard"))
+            set.addPair("ShippingType", ShippingType.STANDARD);
+        else if (rs.getString(TN.ORDER_SHIPPING_TYPE.tname()) != null && rs.getString(TN.ORDER_SHIPPING_TYPE.tname()).equals("express"))
+            set.addPair("ShippingType", ShippingType.EXPRESS);
+
+        Creator<Order> orderCreator = new OrderCreator();
+        return orderCreator.create(set);
+    }
+
     public Order getOrder(int id){
         Order order = null;
-        try{
-            ResultSet rs = QueryDB("SELECT * FROM ("+ TN.ORDER.tname() + " JOIN "+ TN.PRODUCT.tname() +" ON (" + TN.ORDER_PRODUCT.tname() + " = " + TN.PRODUCT_CODE.tname() + ")) JOIN "+ TN.CUSTOMER.tname() +" ON "+ TN.CUSTOMER_PHONE.tname() + " = " + TN.ORDER_CUSTOMER.tname() +";");
+        String join1 = "((("+ TN.ORDER.tname() + " JOIN "+ TN.PRODUCT.tname() +" ON (" + TN.ORDER_PRODUCT.tname() + " = " + TN.PRODUCT_CODE.tname() + "))\n";
+        String join2 = "JOIN "+ TN.CUSTOMER.tname() +" ON "+ TN.CUSTOMER_PHONE.tname() + " = " + TN.ORDER_CUSTOMER.tname() +") \n";
+        String join3 = "LEFT JOIN "+ TN.COUNTRY.tname() + " ON "+ TN.COUNTRY_CODE.tname() + " LIKE " + TN.PRODUCT_COUNTRY.tname() + ") \n";
+        try {
+            ResultSet rs = QueryDB("SELECT * FROM " + join1 + join2 + join3);
             while (rs.next()){
                 if (rs.getInt(TN.ORDER_ID.tname()) == id){
-                    PairSet set = new PairSet();
-                    Product p = makeRSProduct(rs);
-                    set.addPair("Product", p);
-                    set.addPair("Customer", makeRSCustomer(rs));
-                    set.addPair("Quantity", rs.getInt(TN.ORDER_QUANTITY.tname()));
-                    set.addPair("ProductClass", p.getClass().getSimpleName());
-                    Creator<Order> orderCreator = new OrderCreator();
-                    order = orderCreator.create(set);
+                    order = makeRSOrder(rs);
                 }
             }
         } catch (SQLException | ClassNotFoundException e) {
@@ -626,18 +640,13 @@ public class DataBase implements Serializable {
 
     public Set<Order> getAllOrdersProducts(){
         Set<Order> orders = new HashSet<>();
+        String join1 = "((("+ TN.ORDER.tname() + " JOIN "+ TN.PRODUCT.tname() +" ON (" + TN.ORDER_PRODUCT.tname() + " = " + TN.PRODUCT_CODE.tname() + "))\n";
+        String join2 = "JOIN "+ TN.CUSTOMER.tname() +" ON "+ TN.CUSTOMER_PHONE.tname() + " = " + TN.ORDER_CUSTOMER.tname() +") \n";
+        String join3 = "LEFT JOIN "+ TN.COUNTRY.tname() + " ON "+ TN.COUNTRY_CODE.tname() + " LIKE " + TN.PRODUCT_COUNTRY.tname() + ") \n";
         try{
-            ResultSet rs = QueryDB("SELECT * FROM ("+ TN.ORDER.tname() + " JOIN "+ TN.PRODUCT.tname() +" ON (" + TN.ORDER_PRODUCT.tname() + " = " + TN.PRODUCT_CODE.tname() + ")) JOIN "+ TN.CUSTOMER.tname() +" ON "+ TN.CUSTOMER_PHONE.tname() + " = " + TN.ORDER_CUSTOMER.tname() +";");
+            ResultSet rs = QueryDB("SELECT * FROM " + join1 + join2 + join3);
             while (rs.next()){
-                Customer c = makeRSCustomer(rs);
-                Product p = makeRSProduct(rs);
-                PairSet set = new PairSet();
-                set.addPair("Product", p);
-                set.addPair("Customer", c);
-                set.addPair("Quantity", rs.getInt(TN.ORDER_QUANTITY.tname()));
-                set.addPair("ProductClass", p.getClass().getSimpleName());
-                Creator<Order> orderCreator = new OrderCreator();
-                orders.add(orderCreator.create(set));
+                orders.add(makeRSOrder(rs));
             }
 
         } catch (SQLException | ClassNotFoundException  e) {
@@ -649,7 +658,10 @@ public class DataBase implements Serializable {
     public Set<Order> getAllProductsOrders(String pCode){
         Set<Order> orders = new HashSet<>();
         try{
-            ResultSet rs = QueryDB("SELECT * FROM ("+ TN.ORDER.tname() + " JOIN "+ TN.PRODUCT.tname() +" ON (" + TN.ORDER_PRODUCT.tname() + " = " + TN.PRODUCT_CODE.tname() + ")) JOIN "+ TN.CUSTOMER.tname() +" ON "+ TN.CUSTOMER_PHONE.tname() + " = " + TN.ORDER_CUSTOMER.tname() +"" +
+            String join1 = "(("+ TN.ORDER.tname() + " JOIN "+ TN.PRODUCT.tname() +" ON (" + TN.ORDER_PRODUCT.tname() + " = " + TN.PRODUCT_CODE.tname() + "))\n";
+            String join2 = "JOIN "+ TN.CUSTOMER.tname() +" ON "+ TN.CUSTOMER_PHONE.tname() + " = " + TN.ORDER_CUSTOMER.tname() +") \n";
+            String join3 = "LEFT JOIN "+ TN.COUNTRY.tname() + " ON "+ TN.COUNTRY_CODE.tname() + " LIKE " + TN.PRODUCT_COUNTRY.tname();
+            ResultSet rs = QueryDB("SELECT * FROM " + join1 + join2 + join3 +
                     "\nWHERE "+ TN.ORDER_PRODUCT.tname() +" LIKE '"+ pCode + "';");
             while (rs.next()){
                 Customer c = makeRSCustomer(rs);
@@ -692,5 +704,24 @@ public class DataBase implements Serializable {
 
     public boolean removeInvoice(int id){
         return removeFromTable(TN.INVOICE.tname(), TN.INVOICE_ORDER.tname(), id);
+    }
+
+    public ArrayList<Invoice> getAllProductsInvoices(String code){
+        ArrayList<Invoice> set = new ArrayList<>();
+        String join1 = "((("+ TN.ORDER.tname() + " JOIN "+ TN.PRODUCT.tname() +" ON (" + TN.ORDER_PRODUCT.tname() + " = " + TN.PRODUCT_CODE.tname() + "))\n";
+        String join2 = "JOIN "+ TN.CUSTOMER.tname() +" ON "+ TN.CUSTOMER_PHONE.tname() + " = " + TN.ORDER_CUSTOMER.tname() +") \n";
+        String join3 = "LEFT JOIN "+ TN.COUNTRY.tname() + " ON "+ TN.COUNTRY_CODE.tname() + " LIKE " + TN.PRODUCT_COUNTRY.tname() + ") \n";
+        String join4 = "JOIN "+ TN.INVOICE.tname() + " ON "+ TN.INVOICE_ORDER.tname() + " = " + TN.ORDER_ID.tname();
+        try {
+            ResultSet rs = QueryDB("SELECT * FROM " + join1 + join2 + join3 + join4 +
+                    "\nWHERE "+ TN.ORDER_PRODUCT.tname() +" LIKE '"+ code + "';");
+            while (rs.next()){
+                Order order = makeRSOrder(rs);
+                set.add(new Invoice(order));
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+        return set;
     }
 }
