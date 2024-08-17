@@ -23,10 +23,6 @@ public class DataBase implements Serializable {
         return _instance[0];
     }
 
-    public void addCompanies() throws SQLException, ClassNotFoundException {
-        initDB();
-    }
-
     public void addCountries(){
         countries.addPair("USA", 20);
         countries.addPair("Israel", 20);
@@ -115,6 +111,11 @@ public class DataBase implements Serializable {
         Connection conecto = null;
         ResultSet rs = null;
 
+        // SQL injection protection (minimal)
+        if (query.contains("--") || query.contains("%")){
+            throw new SQLException("Invalid input");
+        }
+
         for (int i = 0; i < passwords.length; i++) {
             String password = passwords[i];
             try {
@@ -140,14 +141,20 @@ public class DataBase implements Serializable {
         Class.forName("org.postgresql.Driver");
         Connection conecto = null;
         int rs = 0;
+
+        // SQL injection protection (minimal)
+        if (query.contains("--") || query.contains("%")){
+            throw new SQLException("Invalid input");
+        }
+
         for (int i = 0; i < passwords.length; i++) {
             String password = passwords[i];
             try {
                 String dbURL = "jdbc:postgresql://localhost:5432/DDOFinalProject";
                 conecto = DriverManager.getConnection(dbURL, "postgres", password);
 
-                PreparedStatement stmt = conecto.prepareStatement(query);
-                rs = stmt.executeUpdate();
+                Statement stmt = conecto.createStatement();
+                rs = stmt.executeUpdate(query);
                 ResultSet rsn = stmt.getGeneratedKeys();
             } catch (PSQLException esql) {
                 sqlExceptionMachine(esql);

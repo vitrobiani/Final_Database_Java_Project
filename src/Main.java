@@ -34,8 +34,7 @@ public class Main {
     }
 
     public static void starter() throws SQLException, ClassNotFoundException {
-        db.addCompanies();
-        db.addCountries();
+        db.initDB();
     }
 
     public static void pressToContinue(){
