@@ -569,6 +569,9 @@ public class DataBase implements Serializable {
 
     public boolean removeOrder(int id){
         removeInvoice(id);
+        Order o = getOrder(id);
+        Product p = getProduct(o.product.code);
+        updateProductStock(p.code, p.stock + o.quantity);
         return removeFromTable(TN.ORDER.tname(), TN.ORDER_ID.tname(), id);
     }
 
